@@ -21,7 +21,8 @@ Follow these steps **manually**. The rest is automated.
 ### Enable services
 
 - **Firestore Database** → Create database → Start in **test mode** for dev (you’ll tighten rules later)
-- **Authentication** → Enable **Email/Password** and **Google** sign-in
+- **Authentication** → Enable **Email/Password** sign-in
+- Create the initial admin user: Authentication → Users → Add user → Email: `jobayertashdid920@gmail.com`, set a password
 - **Hosting** → Not required for local dev
 
 ### Get web app config
@@ -56,7 +57,20 @@ Open [http://localhost:3000](http://localhost:3000) in your browser (prefer mobi
 
 ---
 
-## Step 5 (optional): Firebase CLI for deploy
+## Step 5: Deploy to Vercel (free tier)
+
+The app uses **Vercel** for hosting so Admin video/story crawl works without Firebase Blaze plan.
+
+1. Push your code to GitHub
+2. Go to [vercel.com](https://vercel.com) → **Add New Project** → Import your repo
+3. Add **Environment Variables** in Vercel:
+   - All `NEXT_PUBLIC_FIREBASE_*` from `.env.local`
+   - **`FIREBASE_SERVICE_ACCOUNT`** — Firebase Console → Project Settings → Service Accounts → **Generate new private key** → Copy the entire JSON and paste as the value (single line)
+4. Deploy
+
+The "ভিডিও ফেচ ও সংরক্ষণ" button works immediately after deploy.
+
+### Alternative: Firebase CLI (Firestore rules only)
 
 ```bash
 npm install -g firebase-tools
@@ -64,7 +78,22 @@ firebase login
 firebase init
 ```
 
-Use: Firestore rules, Hosting, Functions (if you add them later).
+Use: Firestore rules. Hosting is now on Vercel, not Firebase.
+
+---
+
+## Step 6: Admin authentication
+
+- **Admin URL**: `/admin` — only accessible after sign-in
+- **Initial admin**: Sign in with `jobayertashdid920@gmail.com` (create this user in Firebase Authentication first)
+- Add more admins from the admin dashboard after signing in
+- Deploy Firestore rules: `firebase deploy --only firestore` (for Firestore security)
+
+---
+
+## Step 7 (optional): Bangla font
+
+Stories use **Kalpurush** for Bengali text. The font is in `public/fonts/kalpurush.ttf`. To replace it, put your preferred Bangla font in that folder and update `@font-face` in `app/globals.css`.
 
 ---
 
@@ -74,7 +103,7 @@ Use: Firestore rules, Hosting, Functions (if you add them later).
 |---------------|---------------------------------------|
 | Run dev server| `npm run dev`                         |
 | Build         | `npm run build`                       |
-| Start prod    | `npm run start`                       |
+| Deploy        | Push to GitHub (Vercel auto-deploys) or `vercel` |
 | Lint          | `npm run lint`                        |
 | Firebase config | `.env.local` (from Firebase Console) |
 

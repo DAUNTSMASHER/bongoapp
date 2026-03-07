@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* Kalpurush – Bangla font */
+@font-face {
+  font-family: "Kalpurush";
+  src: url("/fonts/kalpurush.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-bangla: "Kalpurush", "Noto Sans Bengali", system-ui, sans-serif;
+}
+
 :root {
   --background: #141414;
   --foreground: #ffffff;
@@ -95,6 +108,24 @@ html:not(.theme-netflix) body::after {
   display: none;
 }
 
+/* Web: subtle scrollbar for vertical scroll */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
 /* Modern focus ring */
 *:focus-visible {
   outline: 2px solid var(--primary);
@@ -171,6 +202,11 @@ html:not(.theme-netflix) body::after {
   50% {
     opacity: 0.85;
   }
+}
+
+/* Bangla story font - Ekushey Bangla Kolom */
+.font-bangla {
+  font-family: var(--font-bangla);
 }
 
 /* Animation utility classes */

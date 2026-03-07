@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { getFirebaseAnalytics } from "./firebase";
 
-/** Call once in your root layout to enable Firebase Analytics. */
+/** Call once in your root layout to enable Firebase Analytics. Loads Firebase only in browser. */
 export function useAnalytics() {
   useEffect(() => {
-    getFirebaseAnalytics();
+    if (typeof window === "undefined") return;
+    import("./firebase")
+      .then(({ getFirebaseAnalytics }) => getFirebaseAnalytics())
+      .catch(() => {});
   }, []);
 }

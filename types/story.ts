@@ -9,6 +9,7 @@ export interface Story {
   body: string;
   summary?: string;
   tags: string[];
+  categorySlug?: string;
   language: string;
   lengthType: LengthType;
   sourceUrl?: string;

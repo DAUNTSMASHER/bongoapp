@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import StoryCard from "@/components/StoryCard";
-import AdSlot from "@/components/AdSlot";
+import ContentWrapper from "@/components/ContentWrapper";
+import BackButton from "@/components/BackButton";
+import PaginatedStoriesList from "@/components/PaginatedStoriesList";
 import { MOCK_STORIES, CATEGORIES } from "@/lib/stories";
 
 export function generateStaticParams() {
@@ -17,30 +19,24 @@ export default async function CategoryPage({
   if (!category) notFound();
 
   const stories = MOCK_STORIES.filter(
-    (s) => s.tags.includes(slug) || s.lengthType === slug
+    (s) => s.categorySlug === slug || s.tags.includes(slug) || s.lengthType === slug
   );
 
   return (
-    <div className="min-h-screen px-4 py-6">
-      <h1 className="mb-6 text-2xl font-bold text-white">
+    <ContentWrapper className="min-h-screen py-6 md:py-8">
+      <div className="mb-6 flex items-center gap-4">
+        <BackButton href="/categories/" label="ক্যাটাগরি" />
+      </div>
+      <h1 className="mb-6 text-2xl font-bold text-white md:text-3xl">
         {category.label}
       </h1>
-      <div className="space-y-4">
-        {stories.length === 0 ? (
-          <p className="text-white/70">No stories yet.</p>
-        ) : (
-          stories.map((story, i) => (
-            <div key={story.id}>
-              {(i === 1 || (i > 1 && (i - 1) % 5 === 0)) && (
-                <div className="mb-4">
-                  <AdSlot placement="in-feed" />
-                </div>
-              )}
-              <StoryCard story={story} index={i} variant="list" />
-            </div>
-          ))
-        )}
-      </div>
-    </div>
+      <Suspense fallback={<p className="text-white/60">Loading...</p>}>
+        <PaginatedStoriesList
+          stories={stories}
+          basePath={`/categories/${slug}/`}
+          emptyMessage="No stories yet."
+        />
+      </Suspense>
+    </ContentWrapper>
   );
 }

@@ -4,6 +4,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import MobileShell from "@/components/MobileShell";
 import "./globals.css";
 
+/* Bangla font: Kalpurush (local) */
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -17,13 +19,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "bongochoti — Read Stories",
   description: "Read stories in Bangla, Hindi, and English. Mobile-first, comfortable reading.",
+  icons: { icon: "/logo.png" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#141414" },
@@ -36,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="theme-netflix" suppressHydrationWarning>
+    <html lang="bn" className="theme-netflix" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} min-h-dvh antialiased`}
       >

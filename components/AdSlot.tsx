@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-type Placement = "home-top" | "in-feed" | "story-bottom" | "story-mid";
+type Placement = "home-top" | "in-feed" | "story-bottom" | "story-mid" | "videos-top" | "videos-in-feed" | "videos-detail";
 
 interface AdSlotProps {
   placement: Placement;

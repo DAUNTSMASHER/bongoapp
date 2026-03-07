@@ -2,6 +2,7 @@ import HeroBanner from "@/components/HeroBanner";
 import TrendingRail from "@/components/TrendingRail";
 import LatestList from "@/components/LatestList";
 import CategoryChips from "@/components/CategoryChips";
+import ContentWrapper from "@/components/ContentWrapper";
 import { MOCK_STORIES } from "@/lib/stories";
 
 export default function HomePage() {
@@ -12,9 +13,11 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {heroStory && <HeroBanner story={heroStory} />}
-      <CategoryChips />
-      <TrendingRail stories={trending} />
-      <LatestList initialStories={latest} />
+      <ContentWrapper className="pt-2 md:pt-4 lg:pt-6">
+        <CategoryChips />
+        <TrendingRail stories={trending} />
+        <LatestList initialStories={latest} />
+      </ContentWrapper>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import BannerAd from "./BannerAd";
+import { BackIcon, FolderIcon, LibraryIcon, BookmarkIcon, SunIcon, MoonIcon } from "./icons";
 import type { Story } from "@/types/story";
 
 const FONT_SIZES = ["base", "lg", "xl"] as const;
@@ -32,25 +33,25 @@ export default function StoryReader({ story }: StoryReaderProps) {
   }, []);
 
   return (
-    <div className="min-h-screen pb-28 pt-20">
+    <div className="min-h-screen pb-28 pt-20 md:pb-24 md:pt-24">
       {/* Floating top bar - quick nav */}
-      <header className="fixed left-4 right-4 top-16 z-20 mx-auto max-w-2xl rounded-xl border border-white/10 bg-black/80 px-4 py-3 shadow-xl backdrop-blur-md">
+      <header className="fixed left-4 right-4 top-16 z-20 mx-auto max-w-3xl rounded-xl border border-white/10 bg-black/80 px-4 py-3 shadow-xl backdrop-blur-md md:left-1/2 md:right-auto md:-translate-x-1/2 md:top-20">
         <div className="flex items-center gap-3">
           <Link
             href="/"
             className="flex size-10 shrink-0 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white"
             aria-label="Back"
           >
-            ←
+            <BackIcon size={22} strokeWidth={2} />
           </Link>
           <Link
             href="/categories"
             className="flex size-10 shrink-0 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white"
             aria-label="Categories"
           >
-            📂
+            <FolderIcon size={22} strokeWidth={2} />
           </Link>
-          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-white">
+          <span className="font-bangla min-w-0 flex-1 truncate text-sm font-semibold text-white">
             {story.title}
           </span>
           <Link
@@ -58,20 +59,20 @@ export default function StoryReader({ story }: StoryReaderProps) {
             className="flex size-10 shrink-0 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white"
             aria-label="Library"
           >
-            📚
+            <LibraryIcon size={22} strokeWidth={2} />
           </Link>
         </div>
       </header>
 
-      <article className={`mx-auto max-w-prose px-4 ${darkMode ? "dark" : ""}`}>
+      <article className={`mx-auto max-w-3xl px-4 md:px-6 lg:px-8 ${darkMode ? "dark" : ""}`}>
         <header className="mb-6">
-          <h1 className="text-2xl font-bold text-white">{story.title}</h1>
+          <h1 className="font-bangla text-2xl font-bold text-white">{story.title}</h1>
           {story.tags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {story.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-[var(--primary)]"
+                  className="font-bangla rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-[var(--primary)]"
                 >
                   {tag}
                 </span>
@@ -87,7 +88,7 @@ export default function StoryReader({ story }: StoryReaderProps) {
 
         <div
           ref={contentRef}
-          className="prose prose-invert max-w-none prose-p:text-white/90"
+          className="font-bangla prose prose-invert max-w-none prose-p:text-white/90"
           style={{
             fontSize:
               fontSize === "base" ? "1rem" : fontSize === "lg" ? "1.125rem" : "1.25rem",
@@ -125,7 +126,7 @@ export default function StoryReader({ story }: StoryReaderProps) {
 
       {/* Floating bottom bar - reading controls (above app nav) */}
       <nav
-        className="fixed bottom-20 left-4 right-4 z-20 mx-auto flex max-w-2xl items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/80 px-4 py-3 shadow-xl backdrop-blur-md"
+        className="fixed bottom-20 left-4 right-4 z-20 mx-auto flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/80 px-4 py-3 shadow-xl backdrop-blur-md md:left-1/2 md:right-auto md:-translate-x-1/2 md:bottom-8"
         aria-label="Reading controls"
       >
         <button
@@ -147,17 +148,17 @@ export default function StoryReader({ story }: StoryReaderProps) {
         <button
           type="button"
           onClick={() => setDarkMode((d) => !d)}
-          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-lg transition-all hover:bg-[var(--primary)] hover:border-[var(--primary)]"
+          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 transition-all hover:bg-[var(--primary)] hover:border-[var(--primary)] [&_svg]:text-current"
           aria-label="Toggle dark mode"
         >
-          {darkMode ? "☀️" : "🌙"}
+          {darkMode ? <SunIcon size={20} strokeWidth={2} /> : <MoonIcon size={20} strokeWidth={2} />}
         </button>
         <button
           type="button"
-          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-lg transition-all hover:bg-[var(--primary)] hover:border-[var(--primary)]"
+          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 transition-all hover:bg-[var(--primary)] hover:border-[var(--primary)]"
           aria-label="Bookmark"
         >
-          🔖
+          <BookmarkIcon size={20} strokeWidth={2} />
         </button>
       </nav>
     </div>

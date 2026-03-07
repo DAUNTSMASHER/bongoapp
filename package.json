@@ -7,10 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "deploy": "next build && firebase deploy"
+    "deploy": "vercel --prod",
+    "crawl": "npx tsx scripts/crawler/index.ts",
+    "crawl:save": "npx tsx scripts/crawler/index.ts --save"
   },
   "dependencies": {
+    "cheerio": "^1.0.0",
     "firebase": "^12.10.0",
+    "firebase-admin": "^13.0.0",
     "framer-motion": "^12.35.0",
     "next": "16.1.6",
     "react": "19.2.3",
@@ -24,6 +28,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "tsx": "^4.19.0",
     "typescript": "^5"
   }
 }
