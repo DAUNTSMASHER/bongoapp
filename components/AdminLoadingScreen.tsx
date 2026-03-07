@@ -19,7 +19,7 @@ export default function AdminLoadingScreen({ message, showLoginLink }: AdminLoad
       {showLoginLink && (
         <Link
           href="/admin/login/"
-          className="mt-4 text-sm text-[var(--primary)] underline hover:no-underline"
+          className="mt-4 text-sm text-primary underline hover:no-underline"
         >
           Having trouble? Go to admin login
         </Link>

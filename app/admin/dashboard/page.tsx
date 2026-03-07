@@ -192,7 +192,7 @@ export default function AdminDashboardPage() {
           <button
             type="submit"
             disabled={addAdminLoading}
-            className="rounded-lg bg-[var(--primary)] px-6 py-2 font-semibold text-white hover:bg-[var(--primary-hover)] disabled:opacity-50"
+            className="rounded-lg bg-primary px-6 py-2 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
           >
             {addAdminLoading ? "Adding..." : "Add Admin"}
           </button>
@@ -228,7 +228,7 @@ export default function AdminDashboardPage() {
           <button
             type="submit"
             disabled={videoLoading}
-            className="rounded-lg bg-[var(--primary)] px-6 py-3 font-semibold text-white transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50"
+            className="rounded-lg bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
           >
             {videoLoading ? "লোড হচ্ছে..." : "ভিডিও ফেচ ও সংরক্ষণ"}
           </button>
@@ -308,7 +308,7 @@ export default function AdminDashboardPage() {
           <button
             type="submit"
             disabled={storyLoading}
-            className="rounded-lg bg-[var(--primary)] px-6 py-3 font-semibold text-white transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50"
+            className="rounded-lg bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
           >
             {storyLoading ? "Crawling..." : "Generate and Add Stories"}
           </button>

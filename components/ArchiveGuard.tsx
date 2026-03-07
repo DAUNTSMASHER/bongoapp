@@ -28,7 +28,7 @@ export default function ArchiveGuard({ children }: { children: React.ReactNode }
           Sign in with Google
         </button>
         <p className="font-bangla mt-4 text-sm text-white/50">
-          <Link href="/profile/" className="text-[var(--primary)] hover:underline">
+          <Link href="/profile/" className="text-primary hover:underline">
             Profile
           </Link>{" "}
           থেকে সাইন ইন করতে পারেন।

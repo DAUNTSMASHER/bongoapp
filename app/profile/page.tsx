@@ -116,7 +116,7 @@ export default function ProfilePage() {
             {canUseArchive && (
               <Link
                 href="/archive/"
-                className="mt-3 inline-block rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--primary-hover)]"
+                className="mt-3 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
               >
                 Go to Archive
               </Link>
@@ -142,7 +142,7 @@ export default function ProfilePage() {
             </h2>
             <Link
               href="/admin/"
-              className="inline-block rounded-xl bg-[var(--primary)] px-5 py-3 font-semibold text-white shadow-md transition-all hover:bg-[var(--primary-hover)]"
+              className="inline-block rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-md transition-all hover:bg-primary-hover"
             >
               Admin Dashboard
             </Link>
@@ -173,7 +173,7 @@ export default function ProfilePage() {
                 type="button"
                 onClick={handleGenerateLogo}
                 disabled={logoGenerating}
-                className="rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[var(--primary-hover)] disabled:opacity-60"
+                className="rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-primary-hover disabled:opacity-60"
               >
                 {logoGenerating ? "Generating…" : "Generate AI logo"}
               </button>

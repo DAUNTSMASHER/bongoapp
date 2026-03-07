@@ -55,7 +55,7 @@ export default function StoryCard({ story, index = 0, variant = "poster" }: Stor
       >
         <div className="aspect-[2/3] w-20 shrink-0 rounded-lg bg-gradient-to-b from-[var(--primary)]/40 to-[var(--card-bg)] md:w-24 lg:w-28" />
         <div className="min-w-0 flex-1">
-          <h3 className="font-bangla line-clamp-2 font-semibold text-white group-hover:text-[var(--primary)]">
+          <h3 className="font-bangla line-clamp-2 font-semibold text-white group-hover:text-primary">
             {story.title}
           </h3>
           {story.summary && (

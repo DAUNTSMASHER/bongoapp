@@ -39,7 +39,7 @@ export default function VideoCard({ video, index = 0 }: VideoCardProps) {
           </div>
         </div>
         <div className="p-3">
-          <h3 className="font-bangla line-clamp-2 text-sm font-semibold text-white group-hover:text-[var(--primary)]">
+          <h3 className="font-bangla line-clamp-2 text-sm font-semibold text-white group-hover:text-primary">
             {video.title}
           </h3>
           {video.tags.length > 0 && (

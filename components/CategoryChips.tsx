@@ -40,7 +40,7 @@ export default function CategoryChips() {
         >
           <Link
             href="/categories"
-            className="font-bangla block shrink-0 rounded-lg border-2 border-[var(--primary)] px-5 py-2.5 text-sm font-semibold text-[var(--primary)] transition-all hover:bg-[var(--primary)] hover:text-white md:px-6 md:py-3 md:text-base"
+            className="font-bangla block shrink-0 rounded-lg border-2 border-primary px-5 py-2.5 text-sm font-semibold text-primary transition-all hover:bg-primary hover:text-white md:px-6 md:py-3 md:text-base"
           >
             আরও
           </Link>

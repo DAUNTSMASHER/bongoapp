@@ -17,7 +17,7 @@ export default function CategoriesPage() {
           <Link
             key={slug}
             href={`/categories/${slug}`}
-            className="font-bangla block rounded-lg border border-white/10 bg-[#181818] px-4 py-3 text-base font-medium text-white transition-all hover:bg-[var(--primary)] hover:border-[var(--primary)] active:scale-[0.99] md:px-5 md:py-4 md:text-lg"
+            className="font-bangla block rounded-lg border border-white/10 bg-[#181818] px-4 py-3 text-base font-medium text-white transition-all hover:bg-primary hover:border-primary active:scale-[0.99] md:px-5 md:py-4 md:text-lg"
           >
             {label} ({formatCount(count)})
           </Link>

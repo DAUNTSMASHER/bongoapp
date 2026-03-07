@@ -132,7 +132,7 @@ export default function StoryReader({ story }: StoryReaderProps) {
         <button
           type="button"
           onClick={() => setFontStep((s) => Math.max(0, s - 1))}
-          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-lg font-medium text-white transition-all hover:bg-[var(--primary)] hover:border-[var(--primary)]"
+          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-lg font-medium text-white transition-all hover:bg-primary hover:border-primary"
           aria-label="Decrease font size"
         >
           A−
@@ -140,7 +140,7 @@ export default function StoryReader({ story }: StoryReaderProps) {
         <button
           type="button"
           onClick={() => setFontStep((s) => Math.min(2, s + 1))}
-          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-lg font-medium text-white transition-all hover:bg-[var(--primary)] hover:border-[var(--primary)]"
+          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-lg font-medium text-white transition-all hover:bg-primary hover:border-primary"
           aria-label="Increase font size"
         >
           A+
@@ -148,14 +148,14 @@ export default function StoryReader({ story }: StoryReaderProps) {
         <button
           type="button"
           onClick={() => setDarkMode((d) => !d)}
-          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 transition-all hover:bg-[var(--primary)] hover:border-[var(--primary)] [&_svg]:text-current"
+          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 transition-all hover:bg-primary hover:border-primary [&_svg]:text-current"
           aria-label="Toggle dark mode"
         >
           {darkMode ? <SunIcon size={20} strokeWidth={2} /> : <MoonIcon size={20} strokeWidth={2} />}
         </button>
         <button
           type="button"
-          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 transition-all hover:bg-[var(--primary)] hover:border-[var(--primary)]"
+          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 transition-all hover:bg-primary hover:border-primary"
           aria-label="Bookmark"
         >
           <BookmarkIcon size={20} strokeWidth={2} />

@@ -47,7 +47,7 @@ export default function LibraryPage() {
           </p>
           <Link
             href="/profile/"
-            className="mt-4 inline-block rounded-lg bg-[var(--primary)] px-5 py-2.5 font-semibold text-white hover:bg-[var(--primary-hover)]"
+            className="mt-4 inline-block rounded-lg bg-primary px-5 py-2.5 font-semibold text-white hover:bg-primary-hover"
           >
             Sign in
           </Link>
@@ -97,7 +97,7 @@ export default function LibraryPage() {
                     />
                   </div>
                   <div className="p-3">
-                    <h3 className="font-bangla line-clamp-2 text-sm font-semibold text-white group-hover:text-[var(--primary)]">
+                    <h3 className="font-bangla line-clamp-2 text-sm font-semibold text-white group-hover:text-primary">
                       {w.title}
                     </h3>
                     <p className="mt-1 text-xs text-white/50">

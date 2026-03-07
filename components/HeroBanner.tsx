@@ -43,7 +43,7 @@ export default function HeroBanner({ story }: HeroBannerProps) {
               <p className="font-bangla mt-3 max-w-xl text-sm text-white/90 md:mt-4 md:text-base lg:text-lg">
                 {story.summary}
               </p>
-              <span className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-5 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-[var(--primary)]/30 md:mt-5 md:px-6 md:py-3.5 md:text-base">
+              <span className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-white transition-all hover:scale-105 hover:shadow-lg hover:shadow-primary/30 md:mt-5 md:px-6 md:py-3.5 md:text-base">
                 <PlayIcon size={20} strokeWidth={2} className="shrink-0" />
                 Read now
               </span>

@@ -32,7 +32,7 @@ function SearchForm({ defaultValue }: { defaultValue: string }) {
       />
       <button
         type="submit"
-        className="rounded-xl bg-[var(--primary)] px-5 py-3 font-semibold text-white shadow-md transition-all hover:bg-[var(--primary-hover)] active:scale-95"
+        className="rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-md transition-all hover:bg-primary-hover active:scale-95"
       >
         Search
       </button>

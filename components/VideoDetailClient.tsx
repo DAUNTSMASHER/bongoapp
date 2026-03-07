@@ -31,7 +31,7 @@ export default function VideoDetailClient({ video }: VideoDetailClientProps) {
         <p className="font-bangla text-white/70">ভিডিও পাওয়া যায়নি।</p>
         <Link
           href="/videos"
-          className="mt-4 inline-block text-[var(--primary)] hover:underline"
+          className="mt-4 inline-block text-primary hover:underline"
         >
           ভিডিও তালিকায় ফিরে যান
         </Link>
@@ -134,7 +134,7 @@ export default function VideoDetailClient({ video }: VideoDetailClientProps) {
           href={video.outboundUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-bangla mt-6 inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[var(--primary-hover)]"
+          className="font-bangla mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-hover"
         >
           মূল সাইটে দেখা
         </Link>

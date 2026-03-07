@@ -81,7 +81,7 @@ export default function AdminLoginForm({ denied }: AdminLoginFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-[var(--primary)] py-3 font-semibold text-white transition-colors hover:bg-[var(--primary-hover)] disabled:opacity-50"
+          className="w-full rounded-lg bg-primary py-3 font-semibold text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>

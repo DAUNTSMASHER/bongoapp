@@ -46,7 +46,7 @@ export default function MobileShell({
                 key={href}
                 href={href}
                 className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                  isActive ? "text-[var(--primary)]" : "text-white/80 hover:text-white"
+                  isActive ? "text-primary" : "text-white/80 hover:text-white"
                 }`}
               >
                 <Icon size={20} strokeWidth={2} />
@@ -84,7 +84,7 @@ export default function MobileShell({
               <motion.div
                 whileTap={{ scale: 0.95 }}
                 className={`flex min-h-[56px] flex-col items-center justify-center gap-1 text-xs font-medium transition-colors ${
-                  isActive ? "text-[var(--primary)]" : "text-white/70 hover:text-white"
+                  isActive ? "text-primary" : "text-white/70 hover:text-white"
                 }`}
               >
                 <Icon size={24} strokeWidth={2} />

@@ -49,7 +49,7 @@ export default class AdminErrorBoundary extends Component<Props, State> {
             <button
               type="button"
               onClick={this.copyError}
-              className="rounded-lg bg-[var(--primary)] px-4 py-2 font-semibold text-white hover:bg-[var(--primary-hover)]"
+              className="rounded-lg bg-primary px-4 py-2 font-semibold text-white hover:bg-primary-hover"
             >
               {this.state.copied ? "Copied!" : "Copy error to clipboard"}
             </button>
