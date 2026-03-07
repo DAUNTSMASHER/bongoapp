@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { loadAllAdScripts } from "@/lib/ads";
 
 /**
- * Banner ad for reading view only. No popups - banner style only.
- * Use in StoryReader. Popup/interstitial ads should only show after reading is complete.
+ * Banner ad for reading view. Uses effectivegatecpm scripts.
+ * Use in StoryReader and VideoDetailClient.
  */
 interface BannerAdProps {
-  placement: "story-top" | "story-mid" | "story-bottom";
+  placement: "story-top" | "story-mid" | "story-bottom" | "story-part-break";
   variant?: "leaderboard" | "rectangle" | "large";
 }
 
@@ -26,7 +27,10 @@ export default function BannerAd({ placement, variant = "rectangle" }: BannerAdP
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) el.setAttribute("data-loaded", "true");
+          if (entry.isIntersecting) {
+            el.setAttribute("data-loaded", "true");
+            loadAllAdScripts();
+          }
         });
       },
       { rootMargin: "200px", threshold: 0.1 }
@@ -38,15 +42,13 @@ export default function BannerAd({ placement, variant = "rectangle" }: BannerAdP
   return (
     <div
       ref={ref}
+      id={`banner-${placement}`}
       data-placement={placement}
       data-type="banner"
+      data-effectivegatecpm
       className={`w-full ${HEIGHTS[variant]} flex items-center justify-center rounded-lg border border-white/10 bg-white/5`}
       role="img"
       aria-label="Advertisement"
-    >
-      <span className="text-xs font-medium text-white/50">
-        Banner: {placement}
-      </span>
-    </div>
+    />
   );
 }

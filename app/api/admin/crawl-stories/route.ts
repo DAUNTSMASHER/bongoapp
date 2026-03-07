@@ -1,11 +1,14 @@
 /**
  * Admin API: crawl a URL for stories, extract full text, save as draft.
- * POST { "url": "...", "categorySlug": "sera", "count": 40 }
+ * POST { "url": "...", "categorySlug": "sera", "count": 40, "batchSize": 10 }
+ * batchSize: process this many per batch to reduce pressure.
  */
 
 import { NextResponse } from "next/server";
 import { crawlStories } from "@/scripts/crawler/crawlStories";
 import { saveStoriesToFirestore } from "@/scripts/crawler/saveStoriesToFirestore";
+
+export const maxDuration = 120;
 
 export async function POST(req: Request) {
   try {
@@ -13,6 +16,7 @@ export async function POST(req: Request) {
     const url = typeof body?.url === "string" ? body.url.trim() : "";
     const categorySlug = typeof body?.categorySlug === "string" ? body.categorySlug.trim() : "";
     const count = Math.min(Math.max(parseInt(String(body?.count || 10), 10) || 10, 1), 100);
+    const batchSize = Math.min(Math.max(Number(body?.batchSize) || 10, 1), 20);
 
     if (!url) return NextResponse.json({ error: "Missing url" }, { status: 400 });
     if (!categorySlug) return NextResponse.json({ error: "Missing categorySlug" }, { status: 400 });
@@ -20,7 +24,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid url" }, { status: 400 });
     }
 
-    const stories = await crawlStories(url, count);
+    const stories = await crawlStories(url, count, { batchSize });
     const { inserted } = await saveStoriesToFirestore(stories, categorySlug);
 
     return NextResponse.json({

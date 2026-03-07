@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { PlayIcon } from "./icons";
 import type { Story } from "@/types/story";
@@ -22,8 +23,18 @@ export default function HeroBanner({ story }: HeroBannerProps) {
         href={`/stories/${story.id}`}
         className="block h-full min-h-[45vh] md:min-h-[55vh] lg:min-h-[60vh] xl:min-h-[65vh]"
       >
+        {story.coverImageUrl && (
+          <Image
+            src={story.coverImageUrl}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+        )}
         <div
-          className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/50 via-[#1a0a0a] to-[#0d0d0d]"
+          className="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/50 via-[#1a0a0a]/90 to-[#0d0d0d]"
           aria-hidden
         />
         <div
@@ -38,7 +49,7 @@ export default function HeroBanner({ story }: HeroBannerProps) {
           <div className="w-full max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-8 md:pb-12 lg:pb-16">
             <div className="max-w-2xl">
               <h2 className="font-bangla text-2xl font-bold text-white drop-shadow-lg md:text-4xl lg:text-5xl xl:text-6xl leading-tight">
-                {story.title}
+                {story.headline || story.title}
               </h2>
               <p className="font-bangla mt-3 max-w-xl text-sm text-white/90 md:mt-4 md:text-base lg:text-lg">
                 {story.summary}

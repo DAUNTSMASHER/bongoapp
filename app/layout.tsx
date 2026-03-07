@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   title: "bongochoti — Read Stories",
   description: "Read stories in Bangla, Hindi, and English. Mobile-first, comfortable reading.",
   icons: { icon: "/logo.png" },
+  other: {
+    "ff0cd477e93924b16d229267d474a387e72ca672": "ff0cd477e93924b16d229267d474a387e72ca672",
+  },
 };
 
 export const viewport: Viewport = {

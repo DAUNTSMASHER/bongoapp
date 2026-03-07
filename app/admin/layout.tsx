@@ -7,15 +7,18 @@ import AdminErrorBoundary from "@/components/AdminErrorBoundary";
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "";
   const isLogin = pathname.startsWith("/admin/login");
-  const isDashboard = pathname.startsWith("/admin/dashboard");
+  const isProtected =
+    pathname.startsWith("/admin/dashboard") ||
+    pathname.startsWith("/admin/stories") ||
+    pathname.startsWith("/admin/videos");
 
   // Login: no guard, standalone page
   if (isLogin) {
     return <AdminErrorBoundary>{children}</AdminErrorBoundary>;
   }
 
-  // Dashboard: protected by guard
-  if (isDashboard) {
+  // Dashboard, Edit Stories, Edit Videos: protected by guard
+  if (isProtected) {
     return (
       <AdminErrorBoundary>
         <AdminGuard>{children}</AdminGuard>

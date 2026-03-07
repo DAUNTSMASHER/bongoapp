@@ -8,6 +8,7 @@ export interface Story {
   slug: string;
   body: string;
   summary?: string;
+  coverImageUrl?: string;
   tags: string[];
   categorySlug?: string;
   language: string;
@@ -18,6 +19,16 @@ export interface Story {
   createdAt: Date;
   updatedAt: Date;
   publishedAt?: Date;
+  /** AI-generated catchy headline (SEO-friendly, not date) */
+  headline?: string;
+  /** SEO meta title (60 chars) */
+  seoTitle?: string;
+  /** SEO meta description (155 chars) */
+  seoDescription?: string;
+  /** Hashtags for discoverability */
+  hashtags?: string[];
+  /** Story split into 4-5 parts for reading flow + ad breaks */
+  parts?: string[];
 }
 
 export interface Bookmark {

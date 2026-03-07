@@ -38,8 +38,19 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Netflix theme: keep dark red, no media overrides */
+html.theme-netflix {
+  --background: #141414;
+  --foreground: #ffffff;
+  --primary: #E50914;
+  --primary-hover: #f40612;
+  --primary-light: #1a1a1a;
+  --card-bg: #181818;
+  --card-border: #333;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.theme-netflix) {
     --background: #0f0f0f;
     --foreground: #fafafa;
     --primary: #f87171;

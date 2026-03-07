@@ -7,37 +7,65 @@ import BackButton from "./BackButton";
 import AdSlot from "./AdSlot";
 import VideosListClient from "./VideosListClient";
 import VideoDetailClient from "./VideoDetailClient";
-import { getVideos as getMockVideos, getVideoById } from "@/lib/videos";
-import {
-  getVideosFromFirestore,
-  getVideoByIdFromFirestore,
-} from "@/lib/firestoreVideos";
+import { getVideosFromFirestore, getVideoByIdFromFirestore } from "@/lib/firestoreVideos";
 import type { Video } from "@/types/video";
+
+function parseVideo(v: Record<string, unknown>): Video {
+  return {
+    ...v,
+    createdAt: v.createdAt ? new Date(v.createdAt as string) : new Date(),
+  } as Video;
+}
+
+async function fetchVideos(limitCount: number): Promise<Video[]> {
+  try {
+    const res = await fetch(`/api/videos?limit=${limitCount}`);
+    if (res.ok) {
+      const data = await res.json();
+      const list = data.videos || [];
+      return list.map(parseVideo);
+    }
+  } catch {
+    /* API failed, fall through to Firestore */
+  }
+  return getVideosFromFirestore(limitCount);
+}
+
+async function fetchVideoById(id: string): Promise<Video | null> {
+  try {
+    const res = await fetch(`/api/videos/${encodeURIComponent(id)}`);
+    if (res.ok) {
+      const data = await res.json();
+      const v = data.video;
+      if (v) return parseVideo(v);
+    }
+  } catch {
+    /* API failed, fall through to Firestore */
+  }
+  return getVideoByIdFromFirestore(id);
+}
 
 export default function VideosPageClient() {
   const searchParams = useSearchParams();
   const watchId = searchParams.get("watch");
-  const [videos, setVideos] = useState<Video[]>(getMockVideos());
+  const [videos, setVideos] = useState<Video[]>([]);
   const [watchVideo, setWatchVideo] = useState<Video | null>(null);
   const [loading, setLoading] = useState(true);
   const [watchLoading, setWatchLoading] = useState(!!watchId);
 
-  // Fetch list: mock + Firestore
+  // Fetch list from Firestore
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     const run = async () => {
-      const mock = getMockVideos();
       try {
-        const fromFs = await getVideosFromFirestore(100);
-        const byId = new Map<string, Video>();
-        [...mock, ...fromFs].forEach((v) => byId.set(v.id, v));
-        const merged = Array.from(byId.values()).sort(
+        const fromFs = await fetchVideos(100);
+        const sorted = fromFs.sort(
           (a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)
         );
-        if (!cancelled) setVideos(merged);
+        if (!cancelled) setVideos(sorted);
       } catch {
-        if (!cancelled) setVideos(mock);
+        if (!cancelled) setVideos([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -58,16 +86,8 @@ export default function VideosPageClient() {
     let cancelled = false;
     setWatchLoading(true);
     const run = async () => {
-      const fromMock = getVideoById(watchId);
-      if (fromMock) {
-        if (!cancelled) {
-          setWatchVideo(fromMock);
-          setWatchLoading(false);
-        }
-        return;
-      }
       try {
-        const v = await getVideoByIdFromFirestore(watchId);
+        const v = await fetchVideoById(watchId);
         if (!cancelled) setWatchVideo(v ?? null);
       } catch {
         if (!cancelled) setWatchVideo(null);

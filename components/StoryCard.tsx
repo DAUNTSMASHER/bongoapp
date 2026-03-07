@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import type { Story } from "@/types/story";
 
@@ -32,11 +33,35 @@ export default function StoryCard({ story, index = 0, variant = "poster" }: Stor
           href={`/stories/${story.id}`}
           className="block overflow-hidden rounded-lg bg-[var(--card-bg)] transition-all duration-300 ease-out hover:z-10 hover:scale-[1.03] hover:shadow-2xl md:hover:scale-[1.05] lg:rounded-xl lg:border lg:border-white/5"
         >
-          <div className="aspect-[2/3] w-full bg-gradient-to-b from-[var(--primary)]/30 to-[var(--card-bg)] flex flex-col justify-end p-3 md:p-4">
-            <h3 className="font-bangla line-clamp-2 text-sm font-bold text-white drop-shadow-lg md:text-base">
-              {story.title}
-            </h3>
-            <p className="mt-1 text-xs text-white/80 md:text-sm">{formatReadingTime(story.lengthType)}</p>
+          <div className="aspect-[2/3] w-full relative overflow-hidden flex flex-col justify-end p-3 md:p-4">
+            {story.coverImageUrl ? (
+              <>
+                <Image
+                  src={story.coverImageUrl}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                <div className="relative">
+                  <h3 className="font-bangla line-clamp-2 text-sm font-bold text-white drop-shadow-lg md:text-base">
+                    {story.headline || story.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-white/90 md:text-sm">{formatReadingTime(story.lengthType)}</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-b from-[var(--primary)]/30 to-[var(--card-bg)]" />
+                <div className="relative">
+                  <h3 className="font-bangla line-clamp-2 text-sm font-bold text-white drop-shadow-lg md:text-base">
+                    {story.headline || story.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-white/80 md:text-sm">{formatReadingTime(story.lengthType)}</p>
+                </div>
+              </>
+            )}
           </div>
         </Link>
       </motion.div>
@@ -53,10 +78,20 @@ export default function StoryCard({ story, index = 0, variant = "poster" }: Stor
         href={`/stories/${story.id}`}
         className="group flex gap-4 overflow-hidden rounded-xl bg-[var(--card-bg)] p-3 transition-all hover:bg-white/5 md:p-4 lg:hover:scale-[1.02] lg:border lg:border-white/5"
       >
-        <div className="aspect-[2/3] w-20 shrink-0 rounded-lg bg-gradient-to-b from-[var(--primary)]/40 to-[var(--card-bg)] md:w-24 lg:w-28" />
+        <div className="aspect-[2/3] w-20 shrink-0 rounded-lg overflow-hidden bg-gradient-to-b from-[var(--primary)]/40 to-[var(--card-bg)] md:w-24 lg:w-28 relative">
+          {story.coverImageUrl ? (
+            <Image
+              src={story.coverImageUrl}
+              alt=""
+              fill
+              className="object-cover"
+              sizes="112px"
+            />
+          ) : null}
+        </div>
         <div className="min-w-0 flex-1">
           <h3 className="font-bangla line-clamp-2 font-semibold text-white group-hover:text-primary">
-            {story.title}
+            {story.headline || story.title}
           </h3>
           {story.summary && (
             <p className="font-bangla mt-1 line-clamp-1 text-sm text-white/70">

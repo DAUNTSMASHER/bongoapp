@@ -10,12 +10,14 @@ import type { Video } from "@/types/video";
  */
 export async function getVideosFromFirestore(limitCount = 100): Promise<Video[]> {
   const col = collection(db, "videos");
-  const q = query(
-    col,
-    orderBy("createdAt", "desc"),
-    limit(limitCount)
-  );
-  const snapshot = await getDocs(q);
+  let snapshot;
+  try {
+    const q = query(col, orderBy("createdAt", "desc"), limit(limitCount));
+    snapshot = await getDocs(q);
+  } catch {
+    const q = query(col, limit(limitCount));
+    snapshot = await getDocs(q);
+  }
   const videos: Video[] = [];
   snapshot.forEach((doc) => {
     const d = doc.data();
@@ -34,7 +36,9 @@ export async function getVideosFromFirestore(limitCount = 100): Promise<Video[]>
       createdAt,
     });
   });
-  return videos.filter((v) => v.status === "active");
+  const active = videos.filter((v) => v.status === "active");
+  active.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0));
+  return active;
 }
 
 /**

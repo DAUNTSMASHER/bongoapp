@@ -1,5 +1,4 @@
 rules_version = '2';
-// Merge these rules with your existing Firestore rules.
 service cloud.firestore {
   match /databases/{database}/documents {
     match /config/admins {
@@ -7,6 +6,15 @@ service cloud.firestore {
       allow create: if request.auth.token.email == 'jobayertashdid920@gmail.com';
       allow update, delete: if request.auth != null
         && request.auth.token.email in resource.data.emails;
+    }
+    match /stories/{docId} {
+      allow read, write: if true;
+    }
+    match /videos/{docId} {
+      allow read, write: if true;
+    }
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }

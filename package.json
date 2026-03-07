@@ -7,9 +7,21 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "deploy": "vercel --prod",
+    "deploy": "npx vercel --prod",
     "crawl": "npx tsx scripts/crawler/index.ts",
-    "crawl:save": "npx tsx scripts/crawler/index.ts --save"
+    "crawl:save": "npx tsx scripts/crawler/index.ts --save",
+    "crawl:stories": "npx tsx scripts/crawler/crawlStoriesCli.ts",
+    "publish:stories": "npx tsx scripts/crawler/publishStoriesCli.ts",
+    "delete:stories": "npx tsx scripts/crawler/deleteStoriesCli.ts",
+    "assign-covers": "npx tsx scripts/assignCoverImages.ts",
+    "extract-videos": "npx tsx scripts/extractVideoUrls.ts",
+    "enhance-stories": "npx tsx scripts/enhanceStories.ts",
+    "analyze-stories": "npx tsx scripts/analyzeAndEnhanceStories.ts",
+    "refresh-stories": "npx tsx scripts/refresh-stories-from-source.ts",
+    "redistribute-categories": "npx tsx scripts/redistributeCategories.ts",
+    "check-videos": "npx tsx scripts/check-video-playback.ts",
+    "check-embed": "npx tsx scripts/check-embed-url.ts",
+    "vercel:env": "node scripts/push-env-to-vercel.mjs"
   },
   "dependencies": {
     "cheerio": "^1.0.0",
@@ -27,6 +39,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "puppeteer": "^23.11.1",
     "tailwindcss": "^4",
     "tsx": "^4.19.0",
     "typescript": "^5"

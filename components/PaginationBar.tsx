@@ -2,24 +2,25 @@
 
 import Link from "next/link";
 
-const PER_PAGE = 10;
+export const ITEMS_PER_PAGE_DEFAULT = 16;
+export const ITEMS_PER_PAGE = ITEMS_PER_PAGE_DEFAULT; // alias for LatestList
 
 interface PaginationBarProps {
   total: number;
   currentPage: number;
   basePath: string;
+  itemsPerPage: number;
   searchParams?: Record<string, string>;
 }
-
-export const ITEMS_PER_PAGE = PER_PAGE;
 
 export default function PaginationBar({
   total,
   currentPage,
   basePath,
+  itemsPerPage = ITEMS_PER_PAGE_DEFAULT,
   searchParams = {},
 }: PaginationBarProps) {
-  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(total / itemsPerPage));
   if (totalPages <= 1) return null;
 
   const buildHref = (page: number) => {

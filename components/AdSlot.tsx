@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { loadAllAdScripts } from "@/lib/ads";
 
-type Placement = "home-top" | "in-feed" | "story-bottom" | "story-mid" | "videos-top" | "videos-in-feed" | "videos-detail";
+type Placement = "home-top" | "in-feed" | "story-bottom" | "story-mid" | "story-part-break" | "videos-top" | "videos-in-feed" | "videos-detail";
 
 interface AdSlotProps {
   placement: Placement;
@@ -20,6 +21,7 @@ export default function AdSlot({ placement }: AdSlotProps) {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return;
           el.setAttribute("data-loaded", "true");
+          loadAllAdScripts();
         });
       },
       { rootMargin: "300px", threshold: 0.1 }
@@ -32,14 +34,12 @@ export default function AdSlot({ placement }: AdSlotProps) {
   return (
     <div
       ref={ref}
+      id={`ad-${placement}`}
       data-placement={placement}
+      data-effectivegatecpm
       className="min-h-[90px] rounded-lg border border-white/10 bg-white/5 px-4 py-4"
       role="img"
       aria-label="Advertisement"
-    >
-      <span className="text-xs font-medium text-white/50">
-        Ad slot: {placement}
-      </span>
-    </div>
+    />
   );
 }

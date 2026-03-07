@@ -43,6 +43,7 @@ yarn-error.log*
 
 # firebase
 .firebase
+service-account.json
 
 # typescript
 *.tsbuildinfo

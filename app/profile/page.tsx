@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import ThemeSwitcher from "@/components/ThemeSwitcher";
 import Logo from "@/components/Logo";
 import ContentWrapper from "@/components/ContentWrapper";
 import BackButton from "@/components/BackButton";
@@ -157,7 +156,7 @@ export default function ProfilePage() {
                 Language: Bangla
               </li>
             </ul>
-            <ThemeSwitcher />
+            {/* Netflix theme locked – ThemeSwitcher removed */}
           </section>
 
           <section className="mb-8">

@@ -17,7 +17,8 @@ export async function saveCrawledVideosToFirestore(
   let skipped = 0;
 
   for (const v of videos) {
-    if (!v.id || (!v.directVideoUrl && !v.embedUrl)) continue;
+    // Require at least outboundUrl (landing page). directVideoUrl/embedUrl optional for link-out.
+    if (!v.id || !v.outboundUrl) continue;
 
     const docRef = col.doc(v.id);
     const existing = await docRef.get();
