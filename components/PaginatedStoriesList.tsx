@@ -51,6 +51,7 @@ export default function PaginatedStoriesList({
         total={stories.length}
         currentPage={page}
         basePath={basePath}
+        itemsPerPage={ITEMS_PER_PAGE}
         searchParams={pageParams}
       />
     </>

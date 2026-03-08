@@ -79,6 +79,7 @@ export default function SearchContent({ initialStories }: { initialStories: Stor
                 total={results.length}
                 currentPage={page}
                 basePath="/search/"
+                itemsPerPage={ITEMS_PER_PAGE}
                 searchParams={q ? { q } : {}}
               />
             </>
