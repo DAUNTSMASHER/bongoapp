@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef, useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import BannerAd from "./BannerAd";
 import { BackIcon, FolderIcon, LibraryIcon, BookmarkIcon, SunIcon, MoonIcon } from "./icons";
+import ShareButtons from "./ShareButtons";
 import { extractCleanHeadline, extractStoryBody } from "@/lib/storyTextExtractor";
 import type { Story } from "@/types/story";
 
@@ -72,11 +74,26 @@ function getParts(story: Story): string[] {
   return splitBodyIntoParts(body);
 }
 
+const READING_BG_KEY = "story-reader-bg";
+
 export default function StoryReader({ story }: StoryReaderProps) {
   const [fontStep, setFontStep] = useState(1);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true); // default dark for Netflix look
   const [readingComplete, setReadingComplete] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(READING_BG_KEY);
+    if (stored === "light") setDarkMode(false);
+  }, []);
+
+  const toggleBg = () => {
+    setDarkMode((d) => {
+      const next = !d;
+      if (typeof window !== "undefined") localStorage.setItem(READING_BG_KEY, next ? "dark" : "light");
+      return next;
+    });
+  };
 
   const headline = getHeadline(story);
   const displayTags = getDisplayTags(story);
@@ -100,31 +117,40 @@ export default function StoryReader({ story }: StoryReaderProps) {
     return () => observer.disconnect();
   }, []);
 
+  const isLight = !darkMode;
+  const barBg = isLight ? "bg-white/95" : "bg-[var(--background)]";
+  const barBorder = isLight ? "border-gray-200" : "border-white/10";
+  const barText = isLight ? "text-gray-900" : "text-white";
+  const barIcon = isLight ? "text-gray-600 hover:bg-gray-100 hover:text-gray-900" : "text-white/80 hover:bg-white/5 hover:text-white";
+  const contentBg = isLight ? "bg-white" : "bg-transparent";
+  const headlineCls = isLight ? "text-gray-900" : "text-white";
+  const tagCls = isLight ? "border-gray-300 text-gray-700 bg-gray-50" : "border-white/10 bg-transparent text-[var(--primary)]";
+
   return (
-    <div className="min-h-screen pb-28 pt-20 md:pb-24 md:pt-24">
+    <div className={`min-h-screen pb-28 pt-20 md:pb-24 md:pt-24 ${isLight ? "bg-gray-100" : ""}`}>
       {/* Floating top bar - quick nav */}
-      <header className="fixed left-4 right-4 top-16 z-20 mx-auto max-w-3xl rounded-xl border border-white/10 bg-black/80 px-4 py-3 shadow-xl backdrop-blur-md md:left-1/2 md:right-auto md:-translate-x-1/2 md:top-20">
+      <header className={`fixed left-4 right-4 top-16 z-20 mx-auto max-w-3xl rounded-xl border px-4 py-3 shadow-xl md:left-1/2 md:right-auto md:-translate-x-1/2 md:top-20 ${barBg} ${barBorder}`}>
         <div className="flex items-center gap-3">
           <Link
             href="/"
-            className="flex size-10 shrink-0 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            className={`flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors ${barIcon}`}
             aria-label="Back"
           >
             <BackIcon size={22} strokeWidth={2} />
           </Link>
           <Link
             href="/categories"
-            className="flex size-10 shrink-0 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            className={`flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors ${barIcon}`}
             aria-label="Categories"
           >
             <FolderIcon size={22} strokeWidth={2} />
           </Link>
-          <span className="font-bangla min-w-0 flex-1 truncate text-sm font-semibold text-white">
+          <span className={`font-bangla min-w-0 flex-1 truncate text-sm font-semibold ${barText}`}>
             {headline}
           </span>
           <Link
             href="/library"
-            className="flex size-10 shrink-0 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+            className={`flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors ${barIcon}`}
             aria-label="Library"
           >
             <LibraryIcon size={22} strokeWidth={2} />
@@ -132,15 +158,29 @@ export default function StoryReader({ story }: StoryReaderProps) {
         </div>
       </header>
 
-      <article className={`mx-auto max-w-3xl px-4 md:px-6 lg:px-8 ${darkMode ? "dark" : ""}`}>
+      <article className={`mx-auto max-w-3xl px-4 md:px-6 lg:px-8 ${contentBg} ${isLight ? "my-4 rounded-xl py-6 shadow-sm md:my-6 md:py-8" : ""}`}>
+        {/* Cover image at top of story */}
+        {story.coverImageUrl && (
+          <div className="relative -mx-4 mb-6 aspect-[16/9] overflow-hidden rounded-lg md:mx-0 md:rounded-xl">
+            <Image
+              src={story.coverImageUrl}
+              alt={headline}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 672px"
+              priority
+            />
+          </div>
+        )}
         <header className="mb-6">
-          <h1 className="font-bangla text-2xl font-bold text-white">{headline}</h1>
+          <h1 className={`font-bangla text-2xl font-bold ${headlineCls}`}>{headline}</h1>
+          <ShareButtons title={headline} path={`/stories/${story.id}`} className="mt-3" variant={isLight ? "light" : "dark"} />
           {displayTags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
               {displayTags.map((tag) => (
                 <span
                   key={tag}
-                  className="font-bangla rounded-full bg-white/10 px-3 py-1 text-xs font-medium text-[var(--primary)]"
+                  className={`font-bangla rounded-full border px-3 py-1 text-xs font-medium ${tagCls}`}
                 >
                   {tag.startsWith("#") ? tag : tag}
                 </span>
@@ -156,7 +196,7 @@ export default function StoryReader({ story }: StoryReaderProps) {
 
         <div
           ref={contentRef}
-          className="font-bangla prose prose-invert max-w-none prose-p:text-white/90"
+          className={`font-bangla prose max-w-none ${isLight ? "prose-p:text-gray-800 prose-headings:text-gray-900" : "prose-invert prose-p:text-white/90 prose-headings:text-white"}`}
           style={{
             fontSize:
               fontSize === "base" ? "1rem" : fontSize === "lg" ? "1.125rem" : "1.25rem",
@@ -170,8 +210,23 @@ export default function StoryReader({ story }: StoryReaderProps) {
                 dangerouslySetInnerHTML={{ __html: part.replace(/\n/g, "<br />") }}
               />
               {index < parts.length - 1 && (
-                <div className="my-8">
-                  <BannerAd placement="story-part-break" variant="rectangle" />
+                <div className="my-10 flex flex-col items-center gap-6">
+                  {story.coverImageUrl && index < 3 && (
+                    <div className={`relative w-full max-w-2xl overflow-hidden rounded-xl border ${isLight ? "border-gray-200" : "border-white/10"}`}>
+                      <div className="relative aspect-[4/5] w-full md:aspect-[3/4]">
+                        <Image
+                          src={story.coverImageUrl}
+                          alt={headline}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 672px"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {index < 2 && (
+                    <BannerAd placement="story-part-break" variant="rectangle" />
+                  )}
                 </div>
               )}
             </div>
@@ -184,11 +239,11 @@ export default function StoryReader({ story }: StoryReaderProps) {
           <BannerAd placement="story-bottom" variant="rectangle" />
         </div>
 
-        <section className="mt-8 border-t border-white/10 pt-6">
+        <section className={`mt-8 border-t pt-6 ${isLight ? "border-gray-200" : "border-white/10"}`}>
           <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--primary)]">
             Similar stories
           </h2>
-          <p className="mt-2 text-sm text-white/60">(Coming soon)</p>
+          <p className={`mt-2 text-sm ${isLight ? "text-gray-600" : "text-white/60"}`}>(Coming soon)</p>
           {readingComplete && (
             <p className="mt-4 text-sm font-medium text-[var(--primary)]">
               Thanks for reading! ✓
@@ -199,13 +254,13 @@ export default function StoryReader({ story }: StoryReaderProps) {
 
       {/* Floating bottom bar - reading controls */}
       <nav
-        className="fixed bottom-20 left-4 right-4 z-20 mx-auto flex max-w-3xl items-center justify-center gap-2 rounded-xl border border-white/10 bg-black/80 px-4 py-3 shadow-xl backdrop-blur-md md:left-1/2 md:right-auto md:-translate-x-1/2 md:bottom-8"
+        className={`fixed bottom-20 left-4 right-4 z-20 mx-auto flex max-w-3xl items-center justify-center gap-2 rounded-xl border px-4 py-3 shadow-xl md:left-1/2 md:right-auto md:-translate-x-1/2 md:bottom-8 ${barBg} ${barBorder}`}
         aria-label="Reading controls"
       >
         <button
           type="button"
           onClick={() => setFontStep((s) => Math.max(0, s - 1))}
-          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-lg font-medium text-white transition-all hover:bg-primary hover:border-primary"
+          className={`flex size-11 items-center justify-center rounded-lg border bg-transparent text-lg font-medium transition-all hover:bg-primary hover:border-primary ${isLight ? "border-gray-300 text-gray-800" : "border-white/10 text-white"}`}
           aria-label="Decrease font size"
         >
           A−
@@ -213,22 +268,22 @@ export default function StoryReader({ story }: StoryReaderProps) {
         <button
           type="button"
           onClick={() => setFontStep((s) => Math.min(2, s + 1))}
-          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-lg font-medium text-white transition-all hover:bg-primary hover:border-primary"
+          className={`flex size-11 items-center justify-center rounded-lg border bg-transparent text-lg font-medium transition-all hover:bg-primary hover:border-primary ${isLight ? "border-gray-300 text-gray-800" : "border-white/10 text-white"}`}
           aria-label="Increase font size"
         >
           A+
         </button>
         <button
           type="button"
-          onClick={() => setDarkMode((d) => !d)}
-          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 transition-all hover:bg-primary hover:border-primary [&_svg]:text-current"
-          aria-label="Toggle dark mode"
+          onClick={toggleBg}
+          className={`flex size-11 items-center justify-center rounded-lg border bg-transparent transition-all hover:bg-primary hover:border-primary [&_svg]:text-current ${isLight ? "border-gray-300 text-gray-800" : "border-white/10 text-white"}`}
+          aria-label={darkMode ? "Switch to light background" : "Switch to dark background"}
         >
           {darkMode ? <SunIcon size={20} strokeWidth={2} /> : <MoonIcon size={20} strokeWidth={2} />}
         </button>
         <button
           type="button"
-          className="flex size-11 items-center justify-center rounded-lg border border-white/20 bg-white/10 transition-all hover:bg-primary hover:border-primary"
+          className={`flex size-11 items-center justify-center rounded-lg border bg-transparent transition-all hover:bg-primary hover:border-primary ${isLight ? "border-gray-300 text-gray-800" : "border-white/10 text-white"}`}
           aria-label="Bookmark"
         >
           <BookmarkIcon size={20} strokeWidth={2} />

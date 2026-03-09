@@ -20,15 +20,22 @@
     "refresh-stories": "npx tsx scripts/refresh-stories-from-source.ts",
     "redistribute-categories": "npx tsx scripts/redistributeCategories.ts",
     "check-videos": "npx tsx scripts/check-video-playback.ts",
+    "test-fetch": "npx tsx scripts/test-fetch-providers.ts",
     "check-embed": "npx tsx scripts/check-embed-url.ts",
-    "vercel:env": "node scripts/push-env-to-vercel.mjs"
+    "vercel:env": "node scripts/push-env-to-vercel.mjs",
+    "init:name-mappings": "npx tsx scripts/init-name-mappings.ts",
+    "crawl:banglaxchoti": "npx tsx scripts/crawl-banglaxchoti.ts",
+    "crawl:best": "npx tsx scripts/crawl-best-bangla-choti.ts"
   },
   "dependencies": {
+    "@mendable/firecrawl-js": "^4.15.4",
     "cheerio": "^1.0.0",
+    "dotenv": "^17.3.1",
     "firebase": "^12.10.0",
     "firebase-admin": "^13.0.0",
     "framer-motion": "^12.35.0",
     "next": "16.1.6",
+    "playwright": "^1.58.2",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },

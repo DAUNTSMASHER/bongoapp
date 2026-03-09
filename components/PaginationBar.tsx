@@ -39,7 +39,7 @@ export default function PaginationBar({
       {currentPage > 1 && (
         <Link
           href={buildHref(currentPage - 1)}
-          className="rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:border-[var(--primary)] hover:text-white"
         >
           ← আগের
         </Link>
@@ -50,7 +50,7 @@ export default function PaginationBar({
       {currentPage < totalPages && (
         <Link
           href={buildHref(currentPage + 1)}
-          className="rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:border-[var(--primary)] hover:text-white"
         >
           পরের →
         </Link>

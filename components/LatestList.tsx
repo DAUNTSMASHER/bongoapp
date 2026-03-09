@@ -2,13 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import StoryCard from "./StoryCard";
-import AdSlot from "./AdSlot";
+import { useAdPopup } from "./AdPopupProvider";
 import { ITEMS_PER_PAGE } from "./PaginationBar";
 import type { Story } from "@/types/story";
-
-const AD_INTERVAL = 5;
 
 interface LatestListProps {
   initialStories: Story[];
@@ -16,52 +13,35 @@ interface LatestListProps {
 
 export default function LatestList({ initialStories }: LatestListProps) {
   const [stories] = useState(initialStories);
+  const adPopup = useAdPopup();
   const displayStories = stories.slice(0, ITEMS_PER_PAGE);
 
   return (
-    <motion.section
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="pb-8 md:pb-12"
+    <section
+      className="netflix-section section-py rounded-lg px-4 py-6 md:px-5 md:py-7"
       aria-label="Latest stories"
     >
-      <h2 className="mb-4 text-lg font-bold text-white md:mb-6 md:text-xl lg:text-2xl">
-        Latest stories
-      </h2>
-      {/* Responsive grid: 1 col mobile, 2 md, 3 lg, 4 xl */}
+      <div className="mb-4 md:mb-6">
+        <h2 className="font-bangla text-lg font-bold tracking-tight text-white md:text-xl lg:text-2xl">
+          Latest stories
+        </h2>
+      </div>
+      {/* Responsive grid: 1 col mobile, 2 md, 3 lg, 4 xl. Ads are full-width rows. */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4 lg:grid-cols-3 lg:gap-5 xl:grid-cols-4 xl:gap-6">
         {displayStories.map((story, index) => (
-          <motion.div
-            key={story.id}
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35, delay: 0.25 + index * 0.05 }}
-          >
-            {index === 1 && (
-              <div className="col-span-full my-3 md:my-4">
-                <AdSlot placement="home-top" />
-              </div>
-            )}
-            {index > 1 && (index - 1) % AD_INTERVAL === 0 && (
-              <div className="col-span-full my-3 md:my-4">
-                <AdSlot placement="in-feed" />
-              </div>
-            )}
-            <StoryCard story={story} index={index} variant="list" />
-          </motion.div>
+          <div key={story.id} className="min-h-0">
+            <StoryCard story={story} index={index} variant="list" onBeforeNavigate={adPopup?.showAdThenNavigate} />
+          </div>
         ))}
       </div>
-      {stories.length > ITEMS_PER_PAGE && (
-        <div className="mt-6 text-center">
-          <Link
-            href="/categories/sera/"
-            className="inline-block rounded-lg border border-white/20 px-5 py-2.5 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-          >
-            আরও গল্প দেখুন
-          </Link>
-        </div>
-      )}
-    </motion.section>
+      <div className="mt-6 text-center">
+        <Link
+          href="/stories/"
+          className="font-bangla inline-block rounded-md border border-white/10 bg-transparent px-6 py-3 text-sm font-semibold text-white transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]"
+        >
+          আরও গল্প দেখুন
+        </Link>
+      </div>
+    </section>
   );
 }

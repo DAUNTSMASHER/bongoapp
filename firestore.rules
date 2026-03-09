@@ -1,6 +1,14 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    match /config/nameMappings {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /config/hotChobi {
+      allow read: if true;
+      allow write: if false;
+    }
     match /config/admins {
       allow read: if request.auth != null;
       allow create: if request.auth.token.email == 'jobayertashdid920@gmail.com';

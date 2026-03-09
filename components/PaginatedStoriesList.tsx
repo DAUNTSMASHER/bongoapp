@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import StoryCard from "./StoryCard";
-import AdSlot from "./AdSlot";
+import { useAdPopup } from "./AdPopupProvider";
 import PaginationBar, { ITEMS_PER_PAGE } from "./PaginationBar";
 import type { Story } from "@/types/story";
 
@@ -18,6 +18,7 @@ export default function PaginatedStoriesList({
   emptyMessage = "No stories yet.",
 }: PaginatedStoriesListProps) {
   const searchParams = useSearchParams();
+  const adPopup = useAdPopup();
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const start = (page - 1) * ITEMS_PER_PAGE;
   const paginated = stories.slice(start, start + ITEMS_PER_PAGE);
@@ -33,17 +34,10 @@ export default function PaginatedStoriesList({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">
         {paginated.map((story, i) => (
-          <div key={story.id} className="contents">
-            {(i === 1 || (i > 1 && (i - 1) % 5 === 0)) && (
-              <div className="col-span-full my-4">
-                <AdSlot placement="in-feed" />
-              </div>
-            )}
-            <div>
-              <StoryCard story={story} index={start + i} variant="list" />
-            </div>
+          <div key={story.id} className="h-full">
+            <StoryCard story={story} index={start + i} variant="list" onBeforeNavigate={adPopup?.showAdThenNavigate} />
           </div>
         ))}
       </div>

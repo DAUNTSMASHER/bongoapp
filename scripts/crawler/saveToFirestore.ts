@@ -6,7 +6,7 @@
  * Plug in your own credentials via GOOGLE_APPLICATION_CREDENTIALS or serviceAccountPath.
  */
 
-import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
+import { initializeApp, cert, getApps, type ServiceAccount } from "firebase-admin/app";
 import {
   getFirestore,
   FieldValue,
@@ -35,19 +35,28 @@ export function initFirestore(
   serviceAccountPathOrObject?: string | ServiceAccount
 ): Firestore {
   if (db) return db;
-  let credential;
-  if (typeof serviceAccountPathOrObject === "object") {
-    credential = cert(serviceAccountPathOrObject);
-  } else if (serviceAccountPathOrObject) {
-    credential = cert(serviceAccountPathOrObject);
-  } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-    credential = cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) as ServiceAccount);
-  } else {
-    credential = cert(
-      process.env.GOOGLE_APPLICATION_CREDENTIALS || "./service-account.json"
-    );
+  if (getApps().length > 0) {
+    db = getFirestore();
+    return db;
   }
-  initializeApp({ credential });
+  try {
+    let credential;
+    if (typeof serviceAccountPathOrObject === "object") {
+      credential = cert(serviceAccountPathOrObject);
+    } else if (serviceAccountPathOrObject) {
+      credential = cert(serviceAccountPathOrObject);
+    } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+      credential = cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) as ServiceAccount);
+    } else {
+      credential = cert(
+        process.env.GOOGLE_APPLICATION_CREDENTIALS || "./service-account.json"
+      );
+    }
+    initializeApp({ credential });
+  } catch (err) {
+    if (getApps().length === 0) throw err;
+    // App was created by parallel call; reuse
+  }
   db = getFirestore();
   return db;
 }

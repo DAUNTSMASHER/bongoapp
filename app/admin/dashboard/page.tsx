@@ -17,6 +17,7 @@ interface VideoCrawlResult {
 interface StoryCrawlResult {
   extracted: number;
   inserted: number;
+  skipped?: number;
   message: string;
 }
 
@@ -36,7 +37,15 @@ interface SearchVideo {
   sourceSite: string;
 }
 
-type TabId = "videos" | "stories";
+interface ManagedStory {
+  id: string;
+  title: string;
+  headline: string;
+  status: string;
+  categorySlug: string;
+}
+
+type TabId = "videos" | "stories" | "management";
 
 export default function AdminDashboardPage() {
   const { user, adminEmails, refreshAdmins } = useAdminAuth();
@@ -54,12 +63,18 @@ export default function AdminDashboardPage() {
   const [videoError, setVideoError] = useState<string | null>(null);
 
   const [storyUrl, setStoryUrl] = useState("https://www.banglachotikahinii.com/");
-  const [categorySlug, setCategorySlug] = useState("");
-  const [count, setCount] = useState(40);
+  const [categorySlug, setCategorySlug] = useState("bandhobi");
+  const [count, setCount] = useState(20);
   const [storyBatchSize, setStoryBatchSize] = useState(10);
+  const [storySmartCrawl, setStorySmartCrawl] = useState(true);
   const [storyLoading, setStoryLoading] = useState(false);
   const [storyResult, setStoryResult] = useState<StoryCrawlResult | null>(null);
   const [storyError, setStoryError] = useState<string | null>(null);
+  const [storyLogs, setStoryLogs] = useState<{ ts: string; level: "info" | "success" | "error"; message: string }[]>([]);
+  const [linksText, setLinksText] = useState("");
+  const [linksLoading, setLinksLoading] = useState(false);
+  const [linksResult, setLinksResult] = useState<{ extracted: number; inserted: number; skipped: number; message: string } | null>(null);
+  const [linksError, setLinksError] = useState<string | null>(null);
 
   const [publishLoading, setPublishLoading] = useState(false);
   const [publishResult, setPublishResult] = useState<PublishResult | null>(null);
@@ -75,6 +90,125 @@ export default function AdminDashboardPage() {
   const [enhanceLoading, setEnhanceLoading] = useState(false);
   const [enhanceResult, setEnhanceResult] = useState<{ processed: number; enhanced: number; message: string } | null>(null);
   const [enhanceError, setEnhanceError] = useState<string | null>(null);
+
+  const [fetchInspectUrl, setFetchInspectUrl] = useState("https://www.banglachotikahinii.com/category/bangla-couple-sex-story/?asgtbndr=1");
+  const [fetchInspectCount, setFetchInspectCount] = useState(2);
+  const [fetchInspectLoading, setFetchInspectLoading] = useState(false);
+  const [fetchInspectResult, setFetchInspectResult] = useState<{ stories: unknown[]; extracted: number; successRate: string } | null>(null);
+  const [fetchInspectError, setFetchInspectError] = useState<string | null>(null);
+
+  const [mgmtStories, setMgmtStories] = useState<ManagedStory[]>([]);
+  const [mgmtSelected, setMgmtSelected] = useState<Set<string>>(new Set());
+  const [mgmtCategory, setMgmtCategory] = useState("");
+  const [mgmtStatus, setMgmtStatus] = useState("");
+  const [mgmtLoading, setMgmtLoading] = useState(false);
+  const [mgmtDeleteLoading, setMgmtDeleteLoading] = useState(false);
+  const [mgmtResult, setMgmtResult] = useState<string | null>(null);
+  const [mgmtError, setMgmtError] = useState<string | null>(null);
+
+  async function handleLoadMgmtStories(e?: React.FormEvent) {
+    e?.preventDefault();
+    setMgmtError(null);
+    setMgmtResult(null);
+    setMgmtLoading(true);
+    try {
+      const params = new URLSearchParams({ limit: "100" });
+      if (mgmtCategory) params.set("categorySlug", mgmtCategory);
+      if (mgmtStatus) params.set("status", mgmtStatus);
+      const res = await fetch(`/api/admin/stories-management?${params}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed");
+      setMgmtStories(data.stories || []);
+      setMgmtSelected(new Set());
+    } catch (err) {
+      setMgmtError(err instanceof Error ? err.message : "Load failed");
+    } finally {
+      setMgmtLoading(false);
+    }
+  }
+
+  function handleMgmtSelectAll(checked: boolean) {
+    if (checked) {
+      setMgmtSelected(new Set(mgmtStories.map((s) => s.id)));
+    } else {
+      setMgmtSelected(new Set());
+    }
+  }
+
+  function handleMgmtToggle(id: string, checked: boolean) {
+    const next = new Set(mgmtSelected);
+    if (checked) next.add(id);
+    else next.delete(id);
+    setMgmtSelected(next);
+  }
+
+  async function handleMgmtDeleteSelected() {
+    if (mgmtSelected.size === 0) return;
+    setMgmtDeleteLoading(true);
+    setMgmtError(null);
+    setMgmtResult(null);
+    try {
+      const res = await fetch("/api/admin/delete-stories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ storyIds: Array.from(mgmtSelected) }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Delete failed");
+      setMgmtResult(data.message || `Deleted ${mgmtSelected.size} stories.`);
+      setMgmtSelected(new Set());
+      await handleLoadMgmtStories();
+    } catch (err) {
+      setMgmtError(err instanceof Error ? err.message : "Delete failed");
+    } finally {
+      setMgmtDeleteLoading(false);
+    }
+  }
+
+  async function handleMgmtDeleteAll() {
+    if (!confirm("Delete ALL stories? This cannot be undone.")) return;
+    setMgmtDeleteLoading(true);
+    setMgmtError(null);
+    setMgmtResult(null);
+    try {
+      const res = await fetch("/api/admin/delete-stories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deleteAll: true }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Delete failed");
+      setMgmtResult(data.message || "All stories deleted.");
+      setMgmtStories([]);
+      setMgmtSelected(new Set());
+    } catch (err) {
+      setMgmtError(err instanceof Error ? err.message : "Delete failed");
+    } finally {
+      setMgmtDeleteLoading(false);
+    }
+  }
+
+  async function handleFetchInspect(e: React.FormEvent) {
+    e.preventDefault();
+    setFetchInspectError(null);
+    setFetchInspectResult(null);
+    if (!fetchInspectUrl.trim()) return;
+    setFetchInspectLoading(true);
+    try {
+      const res = await fetch("/api/admin/fetch-stories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: fetchInspectUrl.trim(), count: fetchInspectCount }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Request failed");
+      setFetchInspectResult(data);
+    } catch (err) {
+      setFetchInspectError(err instanceof Error ? err.message : "Fetch failed");
+    } finally {
+      setFetchInspectLoading(false);
+    }
+  }
 
   async function handleVideoSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -98,38 +232,112 @@ export default function AdminDashboardPage() {
     }
   }
 
+  function addStoryLog(level: "info" | "success" | "error", message: string) {
+    const ts = new Date().toLocaleTimeString("en-IN", { hour12: false });
+    setStoryLogs((prev) => [...prev.slice(-99), { ts, level, message }]);
+  }
+
   async function handleStorySubmit(e: React.FormEvent) {
     e.preventDefault();
     setStoryError(null);
     setStoryResult(null);
     if (!storyUrl.trim() || !categorySlug) return;
     setStoryLoading(true);
+    const params = {
+      url: storyUrl.trim(),
+      categorySlug,
+      count: Math.min(Math.max(count, 1), 100),
+      batchSize: storyBatchSize,
+      smart: storySmartCrawl,
+    };
+    addStoryLog("info", `Starting crawl: ${params.url} | category=${params.categorySlug} | count=${params.count} | smart=${params.smart}`);
     try {
       const res = await fetch("/api/admin/crawl-stories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url: storyUrl.trim(),
-          categorySlug,
-          count: Math.min(Math.max(count, 1), 100),
-          batchSize: storyBatchSize,
-        }),
+        body: JSON.stringify(params),
       });
       const text = await res.text();
-      let data: { error?: string; extracted?: number; inserted?: number; message?: string };
+      addStoryLog("info", `Response status: ${res.status} ${res.statusText}`);
+      let data: { error?: string; extracted?: number; inserted?: number; message?: string; skipped?: number };
       try {
         data = text ? JSON.parse(text) : {};
       } catch {
-        throw new Error(
-          "Server returned invalid response. Story crawl requires a server deployment. Use 'npm run crawl' locally or deploy with Firebase Functions."
-        );
+        addStoryLog("error", `Invalid JSON response (length=${text.length}). Raw: ${text.slice(0, 200)}...`);
+        const hint =
+          res.status === 502 || res.status === 504
+            ? "Crawl timed out or failed on Vercel. Set FIRECRAWL_API_KEY in Vercel env for cloud scraping, or run locally: npm run crawl:stories [url] [categorySlug] [count]"
+            : "Server returned invalid response. For Vercel: set FIRECRAWL_API_KEY. Or run locally: npm run crawl:stories [url] [categorySlug] [count]";
+        throw new Error(hint);
       }
-      if (!res.ok) throw new Error(data.error || "Request failed");
+      if (!res.ok) {
+        addStoryLog("error", data.error || "Request failed");
+        throw new Error(data.error || "Request failed");
+      }
+      addStoryLog(
+        "success",
+        `Done: extracted=${data.extracted ?? "?"} inserted=${data.inserted ?? "?"} skipped=${data.skipped ?? 0}`
+      );
       setStoryResult(data as StoryCrawlResult);
     } catch (err) {
-      setStoryError(err instanceof Error ? err.message : "Something went wrong");
+      const msg = err instanceof Error ? err.message : "Something went wrong";
+      addStoryLog("error", msg);
+      setStoryError(msg);
     } finally {
       setStoryLoading(false);
+    }
+  }
+
+  async function handleLinksSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLinksError(null);
+    setLinksResult(null);
+    const urls = linksText
+      .split(/[\n,;]+/)
+      .map((s) => s.trim())
+      .filter((s) => s.startsWith("http"));
+    if (urls.length === 0) {
+      setLinksError("Paste at least one valid story URL (one per line or comma-separated).");
+      return;
+    }
+    if (!categorySlug) {
+      setLinksError("Select a category.");
+      return;
+    }
+    setLinksLoading(true);
+    addStoryLog("info", `Extracting from ${urls.length} link(s)...`);
+    try {
+      const res = await fetch("/api/admin/crawl-stories-from-links", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ urls, categorySlug }),
+      });
+      const text = await res.text();
+      addStoryLog("info", `Response: ${res.status}`);
+      let data: { error?: string; extracted?: number; inserted?: number; skipped?: number; message?: string };
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        addStoryLog("error", `Invalid response: ${text.slice(0, 100)}...`);
+        throw new Error("Server returned invalid response. Ensure FIRECRAWL_API_KEY is set on Vercel.");
+      }
+      if (!res.ok) {
+        addStoryLog("error", data.error || "Request failed");
+        throw new Error(data.error || "Request failed");
+      }
+      addStoryLog("success", `Done: ${data.inserted ?? 0} saved, ${data.skipped ?? 0} skipped.`);
+      setLinksResult({
+        extracted: data.extracted ?? 0,
+        inserted: data.inserted ?? 0,
+        skipped: data.skipped ?? 0,
+        message: data.message ?? "",
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Extract failed";
+      addStoryLog("error", msg);
+      setLinksError(msg);
+    } finally {
+      setLinksLoading(false);
     }
   }
 
@@ -303,13 +511,19 @@ export default function AdminDashboardPage() {
           href="/admin/stories/edit"
           className="rounded-lg border border-white/20 bg-white/5 px-5 py-2.5 text-white/90 hover:bg-white/10"
         >
-          Edit Stories (name, heading, body)
+          Edit Stories (name, heading, body, cover image)
         </Link>
         <Link
           href="/admin/videos/edit"
           className="rounded-lg border border-white/20 bg-white/5 px-5 py-2.5 text-white/90 hover:bg-white/10"
         >
           Edit Videos (name, URLs)
+        </Link>
+        <Link
+          href="/admin/hot-chobi"
+          className="rounded-lg border border-white/20 bg-white/5 px-5 py-2.5 text-white/90 hover:bg-white/10"
+        >
+          Hot Chobi — upload, edit images
         </Link>
       </section>
 
@@ -338,6 +552,17 @@ export default function AdminDashboardPage() {
           }`}
         >
           Choti Stories
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("management")}
+          className={`rounded-lg px-6 py-2 font-medium transition-colors ${
+            activeTab === "management"
+              ? "bg-primary text-white"
+              : "bg-white/5 text-white/70 hover:bg-white/10"
+          }`}
+        >
+          Story Management
         </button>
       </div>
 
@@ -495,14 +720,14 @@ export default function AdminDashboardPage() {
         <form onSubmit={handleStorySubmit} className="max-w-xl space-y-4">
           <div>
             <label htmlFor="storyUrl" className="mb-2 block text-sm font-medium text-white/80">
-              Website URL (listing/category page)
+              Website URL (e.g. https://www.banglachotikahinii.com/)
             </label>
             <input
               id="storyUrl"
               type="url"
               value={storyUrl}
               onChange={(e) => setStoryUrl(e.target.value)}
-              placeholder="https://example.com/stories"
+              placeholder="https://www.banglachotikahinii.com/"
               className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
               disabled={storyLoading}
             />
@@ -556,6 +781,16 @@ export default function AdminDashboardPage() {
               disabled={storyLoading}
             />
           </div>
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-white/80">
+            <input
+              type="checkbox"
+              checked={storySmartCrawl}
+              onChange={(e) => setStorySmartCrawl(e.target.checked)}
+              disabled={storyLoading}
+              className="rounded border-white/30"
+            />
+            <span>Smart crawl — ML-style extraction (character names, erotic tags, storyId deduplication, category propagation)</span>
+          </label>
           <button
             type="submit"
             disabled={storyLoading}
@@ -564,6 +799,41 @@ export default function AdminDashboardPage() {
             {storyLoading ? "Crawling..." : "Generate and Add Stories"}
           </button>
         </form>
+
+        <div className="mt-6 rounded-lg border border-white/10 bg-black/40">
+          <div className="flex items-center justify-between border-b border-white/10 px-4 py-2">
+            <span className="text-sm font-medium text-white/80">Crawl logs</span>
+            <button
+              type="button"
+              onClick={() => setStoryLogs([])}
+              className="rounded px-2 py-1 text-xs text-white/60 hover:bg-white/10 hover:text-white/90"
+            >
+              Clear
+            </button>
+          </div>
+          <div className="max-h-48 overflow-y-auto p-3 font-mono text-xs">
+            {storyLogs.length === 0 ? (
+              <p className="text-white/40">Logs will appear here when you run a crawl.</p>
+            ) : (
+              storyLogs.map((log, i) => (
+                <div
+                  key={i}
+                  className={`mb-1 flex gap-2 break-all ${
+                    log.level === "error"
+                      ? "text-red-400"
+                      : log.level === "success"
+                        ? "text-green-400"
+                        : "text-white/70"
+                  }`}
+                >
+                  <span className="shrink-0 text-white/50">[{log.ts}]</span>
+                  <span>{log.message}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
         {storyError && (
           <div className="mt-4 rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-3 text-red-400">
             {storyError}
@@ -576,6 +846,7 @@ export default function AdminDashboardPage() {
             <div className="mt-3 flex flex-wrap gap-4 text-sm">
               <span>Extracted: {storyResult.extracted}</span>
               <span>Saved: {storyResult.inserted}</span>
+              {typeof storyResult.skipped === "number" && <span>Skipped (duplicates): {storyResult.skipped}</span>}
             </div>
           </div>
         )}
@@ -583,6 +854,100 @@ export default function AdminDashboardPage() {
           Same as button: run locally <code className="rounded bg-white/10 px-1">npm run crawl:stories</code> with
           args <code className="rounded bg-white/10 px-1">[url] [categorySlug] [count]</code> if API fails (e.g. on Vercel).
         </p>
+
+        <div className="mt-10 border-t border-white/10 pt-6">
+          <h3 className="mb-2 text-sm font-medium text-white/80">Extract from multiple links</h3>
+          <p className="mb-3 text-xs text-white/50">
+            Paste story URLs (one per line or comma-separated). Each link is a story page. Extracted stories are saved as draft. Max 50 per run.
+          </p>
+          <form onSubmit={handleLinksSubmit} className="max-w-2xl space-y-3">
+            <textarea
+              value={linksText}
+              onChange={(e) => setLinksText(e.target.value)}
+              placeholder={`https://www.banglachotikahinii.com/kajer-meye-bangla-choti/shiuli-amar-fantasy-bou-4/\nhttps://www.banglachotikahinii.com/...\n...`}
+              rows={6}
+              className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 font-mono text-sm text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none"
+              disabled={linksLoading}
+            />
+            <div className="flex items-center gap-4">
+              <select
+                value={categorySlug}
+                onChange={(e) => setCategorySlug(e.target.value)}
+                className="rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-white"
+                disabled={linksLoading}
+              >
+                <option value="">Select category</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c.slug} value={c.slug}>{c.label}</option>
+                ))}
+              </select>
+              <button
+                type="submit"
+                disabled={linksLoading || !categorySlug}
+                className="rounded-lg bg-primary px-6 py-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+              >
+                {linksLoading ? "Extracting..." : "Extract & Save"}
+              </button>
+            </div>
+          </form>
+          {linksError && (
+            <p className="mt-2 text-sm text-red-400">{linksError}</p>
+          )}
+          {linksResult && (
+            <div className="mt-3 rounded-lg border border-green-500/50 bg-green-500/10 px-4 py-3 text-green-100">
+              <p className="font-medium">{linksResult.message}</p>
+              <p className="mt-1 text-sm">Extracted: {linksResult.extracted} · Saved: {linksResult.inserted} · Skipped: {linksResult.skipped}</p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-10 border-t border-white/10 pt-6">
+          <h3 className="mb-2 text-sm font-medium text-white/80">Fetch & Inspect (no save)</h3>
+          <p className="mb-3 text-xs text-white/50">
+            Fetches stories from URL (Vercel Linux env). Quality filter: min 1000 chars, no CTA endings. Returns JSON to inspect.
+          </p>
+          <form onSubmit={handleFetchInspect} className="max-w-xl space-y-3">
+            <input
+              type="url"
+              value={fetchInspectUrl}
+              onChange={(e) => setFetchInspectUrl(e.target.value)}
+              placeholder="https://www.banglachotikahinii.com/category/..."
+              className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/40"
+              disabled={fetchInspectLoading}
+            />
+            <div className="flex items-center gap-4">
+              <label className="text-sm text-white/70">
+                Count:{" "}
+                <input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={fetchInspectCount}
+                  onChange={(e) => setFetchInspectCount(Math.min(10, Math.max(1, parseInt(e.target.value, 10) || 2)))}
+                  className="w-14 rounded border border-white/20 bg-white/5 px-2 py-1 text-white"
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={fetchInspectLoading}
+                className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-500 disabled:opacity-50"
+              >
+                {fetchInspectLoading ? "Fetching..." : "Fetch & Inspect"}
+              </button>
+            </div>
+          </form>
+          {fetchInspectError && <p className="mt-2 text-sm text-red-400">{fetchInspectError}</p>}
+          {fetchInspectResult && (
+            <div className="mt-4 max-h-96 overflow-auto rounded-lg border border-white/10 bg-black/40 p-4">
+              <p className="mb-2 text-sm text-green-300">
+                {fetchInspectResult.extracted} stories · Success rate: {fetchInspectResult.successRate}
+              </p>
+              <pre className="whitespace-pre-wrap break-words text-xs text-white/90">
+                {JSON.stringify(fetchInspectResult.stories, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
 
         <div className="mt-6">
           <h3 className="mb-2 text-sm font-medium text-white/80">Publish drafts</h3>
@@ -634,6 +999,131 @@ export default function AdminDashboardPage() {
             <p className="mt-1 text-sm">Processed: {enhanceResult.processed} | Enhanced: {enhanceResult.enhanced}</p>
           </div>
         )}
+      </section>
+      )}
+
+      {activeTab === "management" && (
+      <section className="rounded-xl border border-white/10 bg-white/5 p-6">
+        <h2 className="mb-4 text-xl font-semibold text-white">Story Management</h2>
+        <p className="mb-4 text-sm text-white/70">
+          List, select, delete, or edit stories. Runs on Vercel.
+        </p>
+        <form onSubmit={handleLoadMgmtStories} className="mb-6 flex flex-wrap items-end gap-4">
+          <div>
+            <label className="mb-1 block text-xs text-white/60">Category</label>
+            <select
+              value={mgmtCategory}
+              onChange={(e) => setMgmtCategory(e.target.value)}
+              className="rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white"
+            >
+              <option value="">All</option>
+              {CATEGORIES.map((c) => (
+                <option key={c.slug} value={c.slug}>{c.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-xs text-white/60">Status</label>
+            <select
+              value={mgmtStatus}
+              onChange={(e) => setMgmtStatus(e.target.value)}
+              className="rounded-lg border border-white/20 bg-white/5 px-3 py-2 text-white"
+            >
+              <option value="">All</option>
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            disabled={mgmtLoading}
+            className="rounded-lg bg-primary px-6 py-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+          >
+            {mgmtLoading ? "Loading..." : "Load Stories"}
+          </button>
+        </form>
+        {mgmtError && (
+          <div className="mb-4 rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-3 text-red-400">
+            {mgmtError}
+          </div>
+        )}
+        {mgmtResult && (
+          <div className="mb-4 rounded-lg border border-green-500/50 bg-green-500/10 px-4 py-3 text-green-300">
+            {mgmtResult}
+          </div>
+        )}
+        <div className="mb-4 flex items-center gap-4">
+          <label className="flex items-center gap-2 text-sm text-white/80">
+            <input
+              type="checkbox"
+              checked={mgmtStories.length > 0 && mgmtSelected.size === mgmtStories.length}
+              onChange={(e) => handleMgmtSelectAll(e.target.checked)}
+              className="rounded"
+            />
+            Select all
+          </label>
+          <button
+            type="button"
+            onClick={handleMgmtDeleteSelected}
+            disabled={mgmtSelected.size === 0 || mgmtDeleteLoading}
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 disabled:opacity-50"
+          >
+            {mgmtDeleteLoading ? "Deleting..." : `Delete selected (${mgmtSelected.size})`}
+          </button>
+          <button
+            type="button"
+            onClick={handleMgmtDeleteAll}
+            disabled={mgmtDeleteLoading}
+            className="rounded-lg border border-red-500/60 bg-red-500/20 px-4 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/30 disabled:opacity-50"
+          >
+            Delete ALL stories
+          </button>
+        </div>
+        <div className="overflow-x-auto rounded-lg border border-white/10">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-white/10 bg-white/5">
+                <th className="px-4 py-2 text-left text-white/80">Select</th>
+                <th className="px-4 py-2 text-left text-white/80">ID</th>
+                <th className="px-4 py-2 text-left text-white/80">Title</th>
+                <th className="px-4 py-2 text-left text-white/80">Category</th>
+                <th className="px-4 py-2 text-left text-white/80">Status</th>
+                <th className="px-4 py-2 text-left text-white/80">Edit</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mgmtStories.map((s) => (
+                <tr key={s.id} className="border-b border-white/5">
+                  <td className="px-4 py-2">
+                    <input
+                      type="checkbox"
+                      checked={mgmtSelected.has(s.id)}
+                      onChange={(e) => handleMgmtToggle(s.id, e.target.checked)}
+                      className="rounded"
+                    />
+                  </td>
+                  <td className="max-w-[140px] truncate px-4 py-2 font-mono text-xs text-white/70">{s.id}</td>
+                  <td className="max-w-[200px] truncate px-4 py-2 text-white">{s.title || s.headline || "—"}</td>
+                  <td className="px-4 py-2 text-white/70">{s.categorySlug || "—"}</td>
+                  <td className="px-4 py-2 text-white/70">{s.status || "draft"}</td>
+                  <td className="px-4 py-2">
+                    <a
+                      href={`/admin/stories/edit?storyId=${encodeURIComponent(s.id)}`}
+                      className="text-[var(--primary)] hover:underline"
+                    >
+                      Edit
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {mgmtStories.length === 0 && !mgmtLoading && (
+            <p className="px-4 py-8 text-center text-white/50">
+              No stories loaded. Use filters and click &quot;Load Stories&quot;.
+            </p>
+          )}
+        </div>
       </section>
       )}
     </ContentWrapper>

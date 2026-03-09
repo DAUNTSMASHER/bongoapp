@@ -10,6 +10,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { applyNameReplacementsToStory, type NameMappings } from "./nameReplacement";
 import type { Story } from "@/types/story";
 
 function toStory(docSnap: { id: string; data: () => Record<string, unknown> }): Story {
@@ -39,7 +40,18 @@ function toStory(docSnap: { id: string; data: () => Record<string, unknown> }): 
     seoDescription: d.seoDescription as string | undefined,
     hashtags: (Array.isArray(d.hashtags) ? d.hashtags : []) as string[],
     parts: (Array.isArray(d.parts) ? d.parts : []) as string[],
+    characterNames: Array.isArray(d.characterNames) ? (d.characterNames as string[]) : undefined,
   };
+}
+
+async function fetchNameMappings(): Promise<NameMappings> {
+  try {
+    const res = await fetch("/api/name-mappings");
+    const data = await res.json();
+    return (data.mappings || {}) as NameMappings;
+  } catch {
+    return {};
+  }
 }
 
 /**
@@ -58,13 +70,17 @@ export async function getPublishedStoriesFromFirestore(options?: {
   }
   const q = query(col, ...constraints, limit(limitCount));
   const snap = await getDocs(q);
-  const stories = snap.docs
+  let stories = snap.docs
     .map((d) => toStory({ id: d.id, data: () => d.data() }))
     .sort(
       (a, b) =>
         (b.publishedAt?.getTime() ?? b.createdAt.getTime()) -
         (a.publishedAt?.getTime() ?? a.createdAt.getTime())
     );
+  const mappings = await fetchNameMappings();
+  if (mappings && Object.keys(mappings).length > 0) {
+    stories = stories.map((s) => applyNameReplacementsToStory(s, mappings));
+  }
   return stories;
 }
 
@@ -79,5 +95,9 @@ export async function getPublishedStoryByIdFromFirestore(
   if (!snap.exists()) return null;
   const d = snap.data();
   if (d.status !== "published") return null;
-  return toStory({ id: snap.id, data: () => d });
+  const story = toStory({ id: snap.id, data: () => d });
+  const mappings = await fetchNameMappings();
+  return mappings && Object.keys(mappings).length > 0
+    ? applyNameReplacementsToStory(story, mappings)
+    : story;
 }

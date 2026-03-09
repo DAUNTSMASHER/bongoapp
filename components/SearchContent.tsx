@@ -6,6 +6,7 @@ import StoryCard from "@/components/StoryCard";
 import ContentWrapper from "@/components/ContentWrapper";
 import BackButton from "@/components/BackButton";
 import PaginationBar, { ITEMS_PER_PAGE } from "@/components/PaginationBar";
+import { useAdPopup } from "@/components/AdPopupProvider";
 import type { Story } from "@/types/story";
 
 function SearchForm({ defaultValue }: { defaultValue: string }) {
@@ -25,15 +26,15 @@ function SearchForm({ defaultValue }: { defaultValue: string }) {
       <input
         type="search"
         name="q"
-        placeholder="Search stories..."
+        placeholder="গল্প খুঁজুন..."
         defaultValue={defaultValue}
-        className="flex-1 rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-base text-white placeholder-white/50 transition-colors focus:border-[var(--primary)] focus:outline-none"
+        className="flex-1 rounded-lg border border-white/10 bg-transparent px-4 py-3 text-base text-white placeholder-white/50 transition-colors focus:border-[var(--primary)] focus:outline-none"
       />
       <button
         type="submit"
         className="rounded-xl bg-primary px-5 py-3 font-semibold text-white shadow-md transition-all hover:bg-primary-hover active:scale-95"
       >
-        Search
+        খুঁজুন
       </button>
     </form>
   );
@@ -41,6 +42,7 @@ function SearchForm({ defaultValue }: { defaultValue: string }) {
 
 export default function SearchContent({ initialStories }: { initialStories: Story[] }) {
   const searchParams = useSearchParams();
+  const adPopup = useAdPopup();
   const q = searchParams.get("q")?.toLowerCase() ?? "";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
 
@@ -56,7 +58,7 @@ export default function SearchContent({ initialStories }: { initialStories: Stor
 
   return (
     <>
-      <div className="sticky top-0 z-10 border-b border-white/10 bg-black/90 py-4 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 border-b border-white/10 bg-[var(--background)] py-4">
         <ContentWrapper>
           <div className="mb-4 flex items-center gap-4">
             <BackButton />
@@ -67,13 +69,13 @@ export default function SearchContent({ initialStories }: { initialStories: Stor
       <ContentWrapper>
         <div className="space-y-4 py-6 md:py-8">
           {!q ? (
-            <p className="text-white/70">Type to search stories by title or tag.</p>
+            <p className="font-bangla text-white/70">গল্প খুঁজতে টাইটেল বা ট্যাগ লিখুন</p>
           ) : results.length === 0 ? (
-            <p className="text-white/70">No results for &quot;{q}&quot;</p>
+            <p className="font-bangla text-white/70">&quot;{q}&quot; এর জন্য ফলাফল নেই</p>
           ) : (
             <>
               {paginated.map((story, i) => (
-                <StoryCard key={story.id} story={story} index={start + i} variant="list" />
+                <StoryCard key={story.id} story={story} index={start + i} variant="list" onBeforeNavigate={adPopup?.showAdThenNavigate} />
               ))}
               <PaginationBar
                 total={results.length}

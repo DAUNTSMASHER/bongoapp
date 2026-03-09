@@ -1,11 +1,16 @@
 /**
  * GET /api/stories/[id]
  * Returns one published story by Firestore document ID.
+ * Applies name replacements from config/nameMappings to headline/title.
  */
 
 import { NextResponse } from "next/server";
+
+export const revalidate = 60;
+const CACHE_CONTROL = "public, s-maxage=60, stale-while-revalidate=120";
 import type { DocumentSnapshot } from "firebase-admin/firestore";
 import { initFirestore } from "@/scripts/crawler/saveToFirestore";
+import { applyNameReplacementsToStory, type NameMappings } from "@/lib/nameReplacement";
 import type { Story } from "@/types/story";
 
 function toStory(doc: DocumentSnapshot): Story {
@@ -19,6 +24,7 @@ function toStory(doc: DocumentSnapshot): Story {
     slug: d.slug || doc.id,
     body: d.body || "",
     summary: d.summary,
+    coverImageUrl: d.coverImageUrl,
     tags: Array.isArray(d.tags) ? d.tags : [],
     categorySlug: d.categorySlug,
     language: d.language || "bn",
@@ -34,6 +40,7 @@ function toStory(doc: DocumentSnapshot): Story {
     seoDescription: d.seoDescription,
     hashtags: Array.isArray(d.hashtags) ? d.hashtags : [],
     parts: Array.isArray(d.parts) ? d.parts : [],
+    characterNames: Array.isArray(d.characterNames) ? d.characterNames : undefined,
   };
 }
 
@@ -54,8 +61,15 @@ export async function GET(
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    const story = toStory(doc);
-    return NextResponse.json({ story });
+    let story = toStory(doc);
+    const mappingsDoc = await firestore.collection("config").doc("nameMappings").get();
+    const mappings: NameMappings = (mappingsDoc.exists && mappingsDoc.data()?.mappings) || {};
+    if (mappings && Object.keys(mappings).length > 0) {
+      story = applyNameReplacementsToStory(story, mappings);
+    }
+    const res = NextResponse.json({ story });
+    res.headers.set("Cache-Control", CACHE_CONTROL);
+    return res;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Failed to fetch story";
     return NextResponse.json({ error: msg }, { status: 500 });

@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ContentWrapper from "./ContentWrapper";
 import BackButton from "./BackButton";
-import AdSlot from "./AdSlot";
 import VideosListClient from "./VideosListClient";
 import VideoDetailClient from "./VideoDetailClient";
+import PageStuckBanner from "./PageStuckBanner";
 import { getVideosFromFirestore, getVideoByIdFromFirestore } from "@/lib/firestoreVideos";
+import { usePageStuck } from "@/hooks/usePageStuck";
 import type { Video } from "@/types/video";
 
 function parseVideo(v: Record<string, unknown>): Video {
@@ -101,11 +102,15 @@ export default function VideosPageClient() {
     };
   }, [watchId]);
 
+  const watchStuck = usePageStuck(watchLoading, 5500);
+  const listStuck = usePageStuck(loading, 5500);
+
   if (watchId) {
     if (watchLoading) {
       return (
         <div className="min-h-screen px-4 py-20 text-center">
           <p className="font-bangla text-white/70">লোড হচ্ছে...</p>
+          <PageStuckBanner show={watchStuck} onRefresh={() => window.location.reload()} />
         </div>
       );
     }
@@ -117,16 +122,15 @@ export default function VideosPageClient() {
       <div className="mb-6 flex items-center gap-4">
         <BackButton href="/" label="হোম" />
       </div>
-      <div className="mb-6">
-        <AdSlot placement="videos-top" />
-      </div>
-
       <h1 className="font-bangla mb-6 text-2xl font-bold text-white md:text-3xl">
         বাংলা ভিডিও
       </h1>
 
       {loading ? (
-        <p className="font-bangla text-white/60">লোড হচ্ছে...</p>
+        <div>
+          <p className="font-bangla text-white/60">লোড হচ্ছে...</p>
+          <PageStuckBanner show={listStuck} onRefresh={() => window.location.reload()} />
+        </div>
       ) : (
         <VideosListClient videos={videos} />
       )}

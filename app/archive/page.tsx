@@ -1,7 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import ContentWrapper from "@/components/ContentWrapper";
 import BackButton from "@/components/BackButton";
 import { getArchiveMonths } from "@/lib/stories";
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://bongochoti.online";
+
+export const metadata: Metadata = {
+  title: "আর্কাইভ — বাংলা চটি গল্প",
+  description: "বাংলা চটি গল্প আর্কাইভ। মাস ও বছর অনুযায়ী গল্প দেখুন।",
+  alternates: { canonical: `${siteUrl}/archive/` },
+  openGraph: { title: "Archive | bongochoti", url: `${siteUrl}/archive/` },
+  robots: { index: true, follow: true },
+};
 
 export default function ArchivePage() {
   const archiveMonths = getArchiveMonths(2026, 3, 2024, 3);

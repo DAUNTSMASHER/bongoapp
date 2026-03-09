@@ -3,11 +3,14 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import VideoCard from "./VideoCard";
-import AdSlot from "./AdSlot";
 import PaginationBar from "./PaginationBar";
-import { loadAllAdScripts } from "@/lib/ads";
+import { loadAllAdScripts, loadInvokeAd, INVOKE_AD } from "@/lib/ads";
+import { canShowAd, recordAdShown } from "@/lib/adRateLimit";
 import { useItemsPerPage } from "@/hooks/useItemsPerPage";
 import type { Video } from "@/types/video";
+
+/** Seconds user must view ad before continuing to video */
+const AD_VIEW_SECONDS = 6;
 
 interface PaginatedVideosListProps {
   videos: Video[];
@@ -27,26 +30,43 @@ export default function PaginatedVideosList({
   const paginated = videos.slice(start, start + itemsPerPage);
 
   const [adTarget, setAdTarget] = useState<{ url: string; openInNewTab: boolean } | null>(null);
+  const [countdown, setCountdown] = useState(AD_VIEW_SECONDS);
+  const [canContinue, setCanContinue] = useState(false);
 
-  // Inject effectivegatecpm ad scripts when interstitial opens
+  // Inject all ad scripts when interstitial opens
   useEffect(() => {
     if (!adTarget) return;
     loadAllAdScripts();
+    loadInvokeAd();
+    setCountdown(AD_VIEW_SECONDS);
+    setCanContinue(false);
   }, [adTarget]);
 
-  const handleVideoClick = (url: string, openInNewTab: boolean) => {
-    setAdTarget({ url, openInNewTab });
+  // Countdown: user must view ad before continuing
+  useEffect(() => {
+    if (!adTarget || canContinue) return;
+    if (countdown <= 0) {
+      setCanContinue(true);
+      return;
+    }
+    const t = setInterval(() => setCountdown((c) => c - 1), 1000);
+    return () => clearInterval(t);
+  }, [adTarget, countdown, canContinue]);
+
+  const handleVideoClick = (url: string, _openInNewTab: boolean) => {
+    if (!canShowAd()) {
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    recordAdShown();
+    setAdTarget({ url, openInNewTab: true });
   };
 
   const handleAdDismiss = () => {
-    if (adTarget) {
-      if (adTarget.openInNewTab) {
-        window.open(adTarget.url, "_blank", "noopener,noreferrer");
-      } else {
-        window.location.href = adTarget.url;
-      }
-      setAdTarget(null);
-    }
+    if (!adTarget || !canContinue) return;
+    window.open(adTarget.url, "_blank", "noopener,noreferrer");
+    setAdTarget(null);
+    setCanContinue(false);
   };
 
   if (videos.length === 0) {
@@ -63,13 +83,7 @@ export default function PaginatedVideosList({
       {/* Compact grid: 2–6 cols, 30 desktop / 16 mobile per page */}
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {paginated.map((video, i) => (
-          <div key={video.id} className="contents">
-            {/* Ad + space every 5 videos */}
-            {i > 0 && i % 5 === 0 && (
-              <div className="col-span-2 my-3 sm:col-span-3 md:col-span-4 lg:col-span-5 xl:col-span-6">
-                <AdSlot placement="videos-in-feed" />
-              </div>
-            )}
+          <div key={video.id}>
             <VideoCard
               video={video}
               index={start + i}
@@ -79,6 +93,7 @@ export default function PaginatedVideosList({
         ))}
       </div>
 
+
       <PaginationBar
         total={videos.length}
         currentPage={page}
@@ -87,22 +102,32 @@ export default function PaginatedVideosList({
         searchParams={pageParams}
       />
 
-      {/* Ad interstitial – effectivegatecpm ad loads, then redirect on button click */}
+      {/* Ad interstitial – must view ad, no embedded video. Opens external link after. */}
       {adTarget && (
         <div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-4"
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 p-4"
           role="dialog"
           aria-modal
           aria-label="Advertisement"
         >
-          <div id="effectivegatecpm-container" className="mb-4 min-h-[120px] w-full max-w-md" />
+          <p className="font-bangla mb-3 text-sm text-white/80">
+            ভিডিও দেখতে ক্লিক করেছেন — বিজ্ঞাপন দেখুন
+          </p>
+          <div
+            id={INVOKE_AD.containerId}
+            className="mb-6 min-h-[200px] w-full max-w-lg rounded-lg border border-white/10 bg-transparent"
+          />
           <button
             type="button"
             onClick={handleAdDismiss}
-            className="rounded-lg bg-[var(--primary)] px-6 py-3 font-semibold text-white hover:bg-[var(--primary)]/90"
+            disabled={!canContinue}
+            className="font-bangla rounded-lg bg-[var(--primary)] px-6 py-3 font-semibold text-white transition-opacity hover:bg-[var(--primary)]/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            ভিডিও দেখুন
+            {canContinue ? "ভিডিও দেখুন" : `${countdown} সেকেন্ড অপেক্ষা করুন`}
           </button>
+          <p className="font-bangla mt-3 text-xs text-white/50">
+            বিজ্ঞাপন দেখুন, তারপর ভিডিওতে যাবেন
+          </p>
         </div>
       )}
     </>

@@ -5,6 +5,9 @@
  */
 
 import { NextResponse } from "next/server";
+
+export const revalidate = 60;
+const CACHE_CONTROL = "public, s-maxage=60, stale-while-revalidate=120";
 import type { DocumentSnapshot } from "firebase-admin/firestore";
 import { initFirestore } from "@/scripts/crawler/saveToFirestore";
 import type { Video } from "@/types/video";
@@ -24,6 +27,9 @@ function toVideo(doc: DocumentSnapshot): Video {
     sourceSite: d.sourceSite,
     status: d.status === "hidden" ? "hidden" : "active",
     createdAt,
+    resolution: d.resolution,
+    viewCount: typeof d.viewCount === "number" ? d.viewCount : undefined,
+    duration: d.duration != null ? d.duration : undefined,
   };
 }
 
@@ -51,7 +57,9 @@ export async function GET(req: Request) {
       .filter((v) => v.status === "active")
       .sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0));
 
-    return NextResponse.json({ videos });
+    const res = NextResponse.json({ videos });
+    res.headers.set("Cache-Control", CACHE_CONTROL);
+    return res;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Failed to fetch videos";
     return NextResponse.json({ error: msg }, { status: 500 });
