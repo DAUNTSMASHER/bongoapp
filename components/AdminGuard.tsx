@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import AdminLoadingScreen from "./AdminLoadingScreen";
+import AdminShell from "./AdminShell";
 
 const MIN_DISPLAY_MS = 1200;
 
@@ -41,5 +42,5 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     );
   }
 
-  return <>{children}</>;
+  return <AdminShell>{children}</AdminShell>;
 }

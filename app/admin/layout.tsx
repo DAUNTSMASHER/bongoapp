@@ -9,8 +9,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isLogin = pathname.startsWith("/admin/login");
   const isProtected =
     pathname.startsWith("/admin/dashboard") ||
+    pathname.startsWith("/admin/stats") ||
     pathname.startsWith("/admin/stories") ||
-    pathname.startsWith("/admin/videos");
+    pathname.startsWith("/admin/videos") ||
+    pathname.startsWith("/admin/hot-chobi");
 
   // Login: no guard, standalone page
   if (isLogin) {

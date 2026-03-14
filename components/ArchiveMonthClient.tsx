@@ -4,8 +4,11 @@ import { useEffect, useState } from "react";
 import ContentWrapper from "@/components/ContentWrapper";
 import BackButton from "@/components/BackButton";
 import PaginatedStoriesList from "@/components/PaginatedStoriesList";
+import PopAdPlacement from "@/components/PopAdPlacement";
+import PageStuckBanner from "@/components/PageStuckBanner";
 import { getPublishedStoriesFromFirestore } from "@/lib/firestoreStoriesClient";
 import { BANGLA_MONTHS } from "@/lib/stories";
+import { usePageStuck } from "@/hooks/usePageStuck";
 import type { Story } from "@/types/story";
 
 function filterByMonth(stories: Story[], year: number, month: number): Story[] {
@@ -24,6 +27,7 @@ export default function ArchiveMonthClient({
 }) {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
+  const stuck = usePageStuck(loading, 5500);
 
   useEffect(() => {
     const [yearStr, monthStr] = slug.split("-");
@@ -67,6 +71,7 @@ export default function ArchiveMonthClient({
           আর্কাইভ — {label}
         </h1>
         <p className="font-bangla text-white/60">লোড হচ্ছে...</p>
+        <PageStuckBanner show={stuck} onRefresh={() => window.location.reload()} />
       </ContentWrapper>
     );
   }
@@ -79,6 +84,7 @@ export default function ArchiveMonthClient({
       <h1 className="font-bangla mb-6 text-2xl font-bold text-white md:text-3xl">
         আর্কাইভ — {label}
       </h1>
+      <PopAdPlacement placement="archive-page" />
       <PaginatedStoriesList
         stories={stories}
         basePath={`/archive/${slug}/`}

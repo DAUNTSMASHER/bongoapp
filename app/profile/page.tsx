@@ -195,6 +195,24 @@ export default function ProfilePage() {
           Sign in with Google to access the Archive feature.
         </p>
       )}
+
+      {/* Legal / Info links */}
+      <footer className="mt-12 border-t border-white/10 pt-8">
+        <div className="flex flex-wrap gap-4">
+          <Link
+            href="/about/"
+            className="font-bangla text-sm text-white/70 underline-offset-2 transition-colors hover:text-[var(--primary)] hover:underline"
+          >
+            আমাদের সম্পর্কে
+          </Link>
+          <Link
+            href="/privacy/"
+            className="font-bangla text-sm text-white/70 underline-offset-2 transition-colors hover:text-[var(--primary)] hover:underline"
+          >
+            গোপনীয়তা নীতি
+          </Link>
+        </div>
+      </footer>
     </ContentWrapper>
   );
 }

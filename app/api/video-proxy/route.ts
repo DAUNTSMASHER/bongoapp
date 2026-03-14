@@ -1,10 +1,11 @@
 /**
  * GET /api/video-proxy?id=xxx
  * Proxies video stream from source to avoid "Access denied" when opening link directly.
- * Uses our URL so copied links work.
+ * For local-* ids, redirects to the public file (no proxy needed).
  */
 
 import { NextResponse } from "next/server";
+import { getLocalVideoById } from "@/lib/localVideos";
 import { initFirestore } from "@/scripts/crawler/saveToFirestore";
 
 const USER_AGENT =
@@ -16,6 +17,11 @@ export async function GET(req: Request) {
     const id = searchParams.get("id");
     if (!id) {
       return NextResponse.json({ error: "Missing video id" }, { status: 400 });
+    }
+
+    const localVideo = getLocalVideoById(id);
+    if (localVideo?.directVideoUrl) {
+      return NextResponse.redirect(new URL(localVideo.directVideoUrl, req.url), 302);
     }
 
     const firestore = initFirestore();

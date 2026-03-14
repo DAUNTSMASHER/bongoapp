@@ -29,6 +29,12 @@ export interface Story {
   hashtags?: string[];
   /** Story split into 4-5 parts for reading flow + ad breaks */
   parts?: string[];
+  /** ML-generated ID for deduplication: {charCount}{characterNames}story */
+  storyId?: string;
+  /** Extracted character names */
+  characterNames?: string[];
+  /** Erotic/sensual tags from content */
+  eroticTags?: string[];
 }
 
 export interface Bookmark {

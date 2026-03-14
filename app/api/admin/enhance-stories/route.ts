@@ -8,15 +8,21 @@ import { NextResponse } from "next/server";
 import type { DocumentReference } from "firebase-admin/firestore";
 import { FieldValue } from "firebase-admin/firestore";
 import { initFirestore } from "@/scripts/crawler/saveToFirestore";
-import { enhanceStory } from "@/lib/aiStoryEnhancer";
+import { enhanceStory, enhanceStorySync } from "@/lib/aiStoryEnhancer";
 
 export const maxDuration = 300;
+
+/** Returns true if text contains Bengali script */
+function hasBengaliScript(text: string): boolean {
+  return /[\u0980-\u09FF]/.test(text);
+}
 
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
     const storyIds = Array.isArray(body?.storyIds) ? body.storyIds : undefined;
     const limit = Math.min(Math.max(Number(body?.limit) || 20, 1), 50);
+    const restoreBangla = body?.restoreBangla === true;
 
     const firestore = initFirestore();
     const col = firestore.collection("stories");
@@ -35,7 +41,14 @@ export async function POST(req: Request) {
         .limit(limit * 2)
         .get();
       docRefs = snap.docs
-        .filter((d) => !d.data()?.headline || !Array.isArray(d.data()?.parts) || (d.data()?.parts?.length ?? 0) < 2)
+        .filter((d) => {
+          const data = d.data();
+          if (restoreBangla) {
+            const h = (data?.headline || data?.title || "").trim();
+            return h.length > 0 && !hasBengaliScript(h);
+          }
+          return !data?.headline || !Array.isArray(data?.parts) || (data?.parts?.length ?? 0) < 2;
+        })
         .slice(0, limit)
         .map((d) => ({ ref: d.ref, data: () => d.data() }));
     }
@@ -47,7 +60,9 @@ export async function POST(req: Request) {
       const body = String(d.body || "");
       if (!body || body.length < 50) continue;
 
-      const result = await enhanceStory(title, body, d.summary as string | undefined);
+      const result = restoreBangla
+        ? enhanceStorySync(title, body)
+        : await enhanceStory(title, body, d.summary as string | undefined);
       await doc.ref.update({
         headline: result.headline,
         seoTitle: result.seoTitle,
@@ -62,7 +77,9 @@ export async function POST(req: Request) {
     return NextResponse.json({
       processed: docRefs.length,
       enhanced,
-      message: `${enhanced} গল্প উন্নত হয়েছে (হেডলাইন, SEO, হ্যাশট্যাগ, পার্ট)`,
+      message: restoreBangla
+        ? `${enhanced} গল্প বাংলা হেডলাইনে পুনরুদ্ধার হয়েছে`
+        : `${enhanced} গল্প উন্নত হয়েছে (হেডলাইন, SEO, হ্যাশট্যাগ, পার্ট)`,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Enhance failed";

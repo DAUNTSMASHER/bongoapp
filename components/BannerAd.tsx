@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { loadAllAdScripts } from "@/lib/ads";
+import { loadAllAdScripts, loadInvokeAd } from "@/lib/ads";
 
 /**
  * Banner ad for reading view. Uses effectivegatecpm scripts.
@@ -30,6 +30,7 @@ export default function BannerAd({ placement, variant = "rectangle" }: BannerAdP
           if (entry.isIntersecting) {
             el.setAttribute("data-loaded", "true");
             loadAllAdScripts();
+            loadInvokeAd();
           }
         });
       },
@@ -46,7 +47,7 @@ export default function BannerAd({ placement, variant = "rectangle" }: BannerAdP
       data-placement={placement}
       data-type="banner"
       data-effectivegatecpm
-      className={`w-full ${HEIGHTS[variant]} flex items-center justify-center rounded-lg border border-white/10 bg-white/5`}
+      className={`w-full ${HEIGHTS[variant]} flex items-center justify-center rounded-lg`}
       role="img"
       aria-label="Advertisement"
     />

@@ -46,7 +46,7 @@ export function useAdminAuth() {
       return;
     }
     loadAdmins();
-    const t = setTimeout(() => setLoading(false), 5000);
+    const t = setTimeout(() => setLoading(false), 3000);
     return () => clearTimeout(t);
   }, [user]);
 

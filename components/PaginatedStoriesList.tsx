@@ -2,8 +2,9 @@
 
 import { useSearchParams } from "next/navigation";
 import StoryCard from "./StoryCard";
-import AdSlot from "./AdSlot";
 import PaginationBar, { ITEMS_PER_PAGE } from "./PaginationBar";
+import SmartLinkAd from "./SmartLinkAd";
+import PopAdPlacement from "./PopAdPlacement";
 import type { Story } from "@/types/story";
 
 interface PaginatedStoriesListProps {
@@ -33,19 +34,16 @@ export default function PaginatedStoriesList({
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-3 lg:gap-6">
         {paginated.map((story, i) => (
-          <div key={story.id} className="contents">
-            {(i === 1 || (i > 1 && (i - 1) % 5 === 0)) && (
-              <div className="col-span-full my-4">
-                <AdSlot placement="in-feed" />
-              </div>
-            )}
-            <div>
-              <StoryCard story={story} index={start + i} variant="list" />
-            </div>
+          <div key={story.id} className="h-full">
+            <StoryCard story={story} index={start + i} variant="list" />
           </div>
         ))}
+      </div>
+      <PopAdPlacement placement="stories-list" />
+      <div className="my-6 flex flex-wrap justify-center gap-3">
+        <SmartLinkAd placement="stories-list" variant="primary" label="আরও গল্প এক্সপ্লোর করুন" />
       </div>
       <PaginationBar
         total={stories.length}

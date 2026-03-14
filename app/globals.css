@@ -14,17 +14,24 @@
 }
 
 :root {
-  --background: #141414;
-  --foreground: #ffffff;
+  --background: #0d0d0d;
+  --foreground: #fafafa;
   --primary: #E50914;
-  --primary-hover: #f40612;
-  --primary-light: #1a1a1a;
-  --muted: #808080;
-  --border: #333;
-  --card-bg: #181818;
-  --card-border: #333;
-  --accent: #564d4d;
-  --accent-gradient: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.8) 100%);
+  --primary-hover: #ff1a26;
+  --primary-light: #1a0a0a;
+  --muted: #888;
+  --border: #1a1a1a;
+  --card-bg: #0d0d0d;
+  --card-border: #1a1a1a;
+  --accent: #4a4444;
+  --accent-gradient: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.85) 100%);
+  /* Section accent colors for dynamic presentation */
+  --accent-teal: #14b8a6;
+  --accent-purple: #a855f7;
+  --accent-amber: #f59e0b;
+  --accent-rose: #f43f5e;
+  --accent-cyan: #06b6d4;
+  --accent-emerald: #10b981;
 }
 
 /* Netflix-style defaults; light themes override via ThemeProvider */
@@ -38,15 +45,15 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Netflix theme: keep dark red, no media overrides */
+/* Netflix theme: single dark canvas, borders for separation only */
 html.theme-netflix {
-  --background: #141414;
-  --foreground: #ffffff;
+  --background: #0d0d0d;
+  --foreground: #fafafa;
   --primary: #E50914;
-  --primary-hover: #f40612;
-  --primary-light: #1a1a1a;
-  --card-bg: #181818;
-  --card-border: #333;
+  --primary-hover: #ff1a26;
+  --primary-light: #1a0a0a;
+  --card-bg: #0d0d0d;
+  --card-border: #1a1a1a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -86,8 +93,7 @@ body::after {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.3) 100%);
-  opacity: 0.5;
+  background: transparent;
   pointer-events: none;
   z-index: -1;
 }
@@ -216,9 +222,67 @@ html:not(.theme-netflix) body::after {
   }
 }
 
+@keyframes gradient-border {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes section-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Netflix-style: same as page background, subtle border only for separation */
+.netflix-section {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+}
+.netflix-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+}
+
 /* Bangla story font - Ekushey Bangla Kolom */
 .font-bangla {
   font-family: var(--font-bangla);
+}
+
+/* Consistent section spacing for clean layout */
+.section-py {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+@media (min-width: 768px) {
+  .section-py {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .section-py {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+.section-gap {
+  gap: 0.75rem;
+}
+@media (min-width: 768px) {
+  .section-gap {
+    gap: 1rem;
+  }
+}
+@media (min-width: 1024px) {
+  .section-gap {
+    gap: 1.25rem;
+  }
 }
 
 /* Animation utility classes */

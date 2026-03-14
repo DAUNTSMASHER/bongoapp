@@ -5,12 +5,13 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import Logo from "./Logo";
 import { useAnalytics } from "@/lib/useAnalytics";
-import { HomeIcon, FolderIcon, LibraryIcon, UserIcon, SearchIcon, CalendarIcon, PlayIcon } from "./icons";
+import { HomeIcon, FolderIcon, LibraryIcon, UserIcon, SearchIcon, CalendarIcon, PlayIcon, FileTextIcon } from "./icons";
 
 const navItems = [
   { href: "/", label: "হোম", Icon: HomeIcon },
   { href: "/videos", label: "ভিডিও", Icon: PlayIcon },
   { href: "/categories", label: "ক্যাটাগরি", Icon: FolderIcon },
+  { href: "/blog", label: "ব্লগ", Icon: FileTextIcon },
   { href: "/archive", label: "আর্কাইভ", Icon: CalendarIcon },
   { href: "/library", label: "লাইব্রেরি", Icon: LibraryIcon },
   { href: "/profile", label: "প্রোফাইল", Icon: UserIcon },
@@ -38,15 +39,15 @@ export default function MobileShell({
         </Link>
 
         {/* Desktop nav - horizontal */}
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+        <nav className="hidden items-center gap-0.5 md:flex" aria-label="Main navigation">
           {navItems.map(({ href, label, Icon }) => {
             const isActive = pathname === href || pathname.startsWith(href + "/");
             return (
               <Link
                 key={href}
                 href={href}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                  isActive ? "text-primary" : "text-white/80 hover:text-white"
+                className={`flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all duration-300 ${
+                  isActive ? "text-primary" : "text-white/80 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <Icon size={20} strokeWidth={2} />

@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { MotionConfig } from "framer-motion";
 import { THEMES, type ThemeId, type ThemeTemplate } from "@/lib/themes";
 
 const STORAGE_KEY = "stories-theme";
@@ -57,7 +58,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   return (
     <ThemeContext.Provider value={{ themeId, theme, setTheme }}>
-      {children}
+      <MotionConfig reducedMotion="user">{children}</MotionConfig>
     </ThemeContext.Provider>
   );
 }

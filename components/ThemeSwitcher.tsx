@@ -24,8 +24,8 @@ export default function ThemeSwitcher() {
               whileTap={{ scale: 0.95 }}
               className={`relative flex flex-col items-center gap-1.5 rounded-lg border px-3 py-3 transition-all ${
                 isActive
-                  ? "border-[var(--primary)] bg-white/10"
-                  : "border-white/10 bg-white/5 hover:border-white/30"
+                  ? "border-[var(--primary)] bg-transparent"
+                  : "border-white/10 bg-transparent hover:border-white/20"
               }`}
               title={t.name}
             >

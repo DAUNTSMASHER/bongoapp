@@ -31,11 +31,14 @@ export async function POST(req: Request) {
     }
 
     const limit = Math.min(maxVideos, batchSize);
-    const usePuppeteer = body?.usePuppeteer !== false; // default true – site loads video URLs via JS
+    const usePuppeteer = body?.usePuppeteer !== false;
+    const forceUpsert = body?.forceUpsert !== false; // default: upsert existing, no skip
     const videos = await crawlBanglaChotiListing(url, { maxVideos: limit, usePuppeteer });
-    const { inserted, skipped } = await saveCrawledVideosToFirestore(videos);
+    const { inserted, skipped, updated } = await saveCrawledVideosToFirestore(videos, { forceUpsert });
 
-    let message = `${videos.length} ভিডিও পাওয়া গেছে। ${inserted} নতুন যোগ হয়েছে, ${skipped} আগে থেকেই ছিল।`;
+    let message = `${videos.length} ভিডিও পাওয়া গেছে। ${inserted} নতুন যোগ হয়েছে।`;
+    if (updated > 0) message += ` ${updated} আপডেট হয়েছে।`;
+    if (skipped > 0) message += ` ${skipped} স্কিপ (ডুপ্লিকেট)।`;
     if (videos.length === 0) {
       message += " কিছু ভিডিও পেজ 404 বা ব্লক করেছে। পরে আবার চেষ্টা করুন।";
     } else {
@@ -45,6 +48,7 @@ export async function POST(req: Request) {
       extracted: videos.length,
       inserted,
       skipped,
+      updated: updated ?? 0,
       message,
     });
   } catch (err) {

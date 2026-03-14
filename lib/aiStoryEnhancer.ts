@@ -120,12 +120,19 @@ async function hfGenerate(
   }
 }
 
-/** AI headline via Flan-T5 (instruction-tuned) - prompt for short headline */
+/** Returns true if text contains Bengali script (Bangla) */
+function hasBengaliScript(text: string): boolean {
+  return /[\u0980-\u09FF]/.test(text);
+}
+
+/** AI headline via Flan-T5. Flan-T5 outputs English — only use AI when it returns Bangla. */
 async function aiHeadline(body: string, title: string): Promise<string | null> {
   const excerpt = body.slice(0, 400).replace(/\n/g, " ");
-  const prompt = `Summarize this Bengali story title in one catchy phrase under 60 chars. Title: ${title}. Start: ${excerpt}`;
+  const prompt = `Summarize this Bengali story title in Bengali, one catchy phrase under 60 chars. Title: ${title}. Start: ${excerpt}`;
   const out = await hfGenerate(prompt, 40);
-  return out && out.length > 10 && out.length <= HEADLINE_MAX ? out : null;
+  if (!out || out.length < 10 || out.length > HEADLINE_MAX) return null;
+  if (!hasBengaliScript(out)) return null;
+  return out;
 }
 
 /** Generate a unique, catchy story title from content using LLM */
@@ -185,7 +192,7 @@ export async function enhanceStory(
 
   let hashtags = ruleBasedHashtags(cleanBody, title);
   const aiTags = await aiHashtags(cleanBody, title);
-  if (aiTags?.length) hashtags = aiTags;
+  if (aiTags?.length && aiTags.some(hasBengaliScript)) hashtags = aiTags;
 
   const { seoTitle, seoDescription } = ruleBasedSeo(cleanBody, title, headline);
 

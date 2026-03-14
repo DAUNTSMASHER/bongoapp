@@ -2,6 +2,7 @@ import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getAnalytics, type Analytics } from "firebase/analytics";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ?? "AIzaSyANloyaLFL60CNIz2Tg1HoyH72qoTN318s",
@@ -23,6 +24,7 @@ if (getApps().length === 0) {
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const storage = getStorage(app);
 
 /** Analytics - only available in browser */
 export function getFirebaseAnalytics(): Analytics | null {

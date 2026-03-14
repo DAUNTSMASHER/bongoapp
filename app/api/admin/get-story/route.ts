@@ -31,6 +31,10 @@ export async function POST(req: Request) {
       categorySlug: d.categorySlug || "",
       tags: Array.isArray(d.tags) ? d.tags : [],
       status: d.status || "draft",
+      characterNames: Array.isArray(d.characterNames) ? d.characterNames : [],
+      seoTitle: d.seoTitle || "",
+      seoDescription: d.seoDescription || "",
+      coverImageUrl: d.coverImageUrl || "",
     };
     return NextResponse.json({ story });
   } catch (err) {

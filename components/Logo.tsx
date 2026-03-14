@@ -31,11 +31,16 @@ export default function Logo({ size = 40, showText = true, className = "" }: Log
         />
       </span>
       {showText && (
-        <span
-          className="text-xl font-bold tracking-tight"
-          style={{ color: "var(--primary)" }}
-        >
-          bongochoti
+        <span className="flex flex-col">
+          <span
+            className="text-xl font-bold tracking-tight leading-tight"
+            style={{ color: "var(--primary)" }}
+          >
+            bongochoti
+          </span>
+          <span className="font-bangla text-[11px] text-white/70 tracking-wide md:text-xs">
+            বাংলা চটি
+          </span>
         </span>
       )}
     </motion.div>

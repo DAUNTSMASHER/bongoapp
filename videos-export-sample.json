@@ -1,0 +1,4 @@
+[
+  { "id": "video-doc-id-1", "directVideoUrl": "https://example.com/video.mp4" },
+  { "id": "video-doc-id-2", "directVideoUrl": "https://example.com/other.mp4" }
+]

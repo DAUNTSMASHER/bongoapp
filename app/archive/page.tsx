@@ -1,7 +1,28 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import ContentWrapper from "@/components/ContentWrapper";
 import BackButton from "@/components/BackButton";
 import { getArchiveMonths } from "@/lib/stories";
+import { SEO_KEYWORDS } from "@/lib/seoKeywords";
+
+const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://bongochoti.com";
+
+export const metadata: Metadata = {
+  title: "আর্কাইভ | Bangla Choti গল্প — মাস অনুযায়ী",
+  description:
+    "Bangla choti golpo, choti kahini আর্কাইভ। মাস ও বছর অনুযায়ী বাংলা চটি গল্প ব্রাউজ করুন। ১৮০০+ stories. bongochoti.com",
+  keywords: SEO_KEYWORDS,
+  alternates: { canonical: `${siteUrl}/archive/` },
+  openGraph: {
+    title: "আর্কাইভ | Bangla Choti Archive | bongochoti",
+    description: "Bangla choti golpo archive by month and year. Browse ১৮০০+ bangla choti kahini.",
+    url: `${siteUrl}/archive/`,
+    type: "website",
+    images: [{ url: `${siteUrl}/logo.png`, width: 512, height: 512, alt: "Bangla Choti Archive | bongochoti" }],
+  },
+  twitter: { card: "summary_large_image", title: "আর্কাইভ | bongochoti" },
+  robots: { index: true, follow: true },
+};
 
 export default function ArchivePage() {
   const archiveMonths = getArchiveMonths(2026, 3, 2024, 3);

@@ -19,6 +19,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const videos = Array.isArray(body?.videos) ? body.videos : [];
     const batchSize = Math.min(Math.max(Number(body?.batchSize) || DEFAULT_BATCH_SIZE, 1), 20);
+    const forceUpsert = body?.forceUpsert !== false; // default: upsert, no skip
 
     if (videos.length === 0) {
       return NextResponse.json({ error: "No videos to publish" }, { status: 400 });
@@ -28,6 +29,7 @@ export async function POST(req: Request) {
     const col = firestore.collection("videos");
     let inserted = 0;
     let skipped = 0;
+    let updated = 0;
     const valid = (videos as SearchVideo[]).filter(
       (v) => v?.id && (v.directVideoUrl || v.embedUrl)
     );
@@ -37,11 +39,7 @@ export async function POST(req: Request) {
       for (const v of batch) {
         const docRef = col.doc(v.id);
         const existing = await docRef.get();
-        if (existing.exists) {
-          skipped++;
-          continue;
-        }
-        await docRef.set({
+        const data = {
           id: v.id,
           title: v.title || "Video",
           thumbnailUrl: v.thumbnailUrl || "",
@@ -52,6 +50,19 @@ export async function POST(req: Request) {
           language: "bn",
           sourceSite: v.sourceSite || "web-search",
           status: "active",
+          updatedAt: FieldValue.serverTimestamp(),
+        };
+        if (existing.exists) {
+          if (forceUpsert) {
+            await docRef.update(data);
+            updated++;
+          } else {
+            skipped++;
+          }
+          continue;
+        }
+        await docRef.set({
+          ...data,
           createdAt: FieldValue.serverTimestamp(),
         });
         inserted++;
@@ -61,10 +72,14 @@ export async function POST(req: Request) {
       }
     }
 
+    let message = `${inserted} ভিডিও সেভ হয়েছে।`;
+    if (updated > 0) message += ` ${updated} আপডেট হয়েছে।`;
+    if (skipped > 0) message += ` ${skipped} স্কিপ।`;
     return NextResponse.json({
       inserted,
       skipped,
-      message: `${inserted} ভিডিও সেভ হয়েছে। ${skipped} আগে থেকেই ছিল।`,
+      updated,
+      message,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Publish failed";

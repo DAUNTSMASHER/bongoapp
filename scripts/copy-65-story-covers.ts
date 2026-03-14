@@ -1,0 +1,104 @@
+/**
+ * Copy the 65 curated lady images to public/story_cover/
+ * Names: bongochoti_online_golpo_01.png ... bongochoti_online_golpo_65.png
+ */
+
+import * as fs from "fs";
+import * as path from "path";
+
+const ASSETS = path.join(
+  process.env.USERPROFILE || "",
+  ".cursor",
+  "projects",
+  "c-Users-user-story-reading-app",
+  "assets"
+);
+const OUT_DIR = path.join(process.cwd(), "public", "story_cover");
+
+// Exact filenames of the 65 images (from Cursor assets)
+const FILES = [
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_8c2be54ddc74510d44e885081f004d40.0000000-72e78656-aeb1-43fc-8bcf-e4398a3cd6e9.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_9b9173d587156c31bf8cb7f39ac5df9b-07f021b7-e873-4fec-b6e8-14143da362c8.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_10daefd77ef538f270cee53abfbd01f7-b1d06bd9-49bf-4301-bc6a-2e8070e5211b.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_13a65caac4f1286b4ba2d97ca1926998-e2cb109d-37f2-4f4f-93f3-d04e1b186089.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_37ab9e2e45e7f397c923ed747fcbcad2-4b88b6cb-1083-4b68-85f2-425a25f41bb5.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_044a4f01989107e0199f2dc9cb867034-7a318d6d-6614-4d4c-af6b-4aa7ff4cab94.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_43b0fc649d0083bee83b033999e86dfa.0000000-f0253942-6332-41e5-a802-a311f80fa537.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_56b257deb6b48cf32e00a1e146b04f00-f796da61-b782-4c41-9a54-2020442bc60c.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_46dddf951dffa31c25407046be387934-af6481f1-2aa9-4816-8b1f-139d8d909cce.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_68e26276c0429749e166c7fb359d9912-3ccd6d9a-821e-4e8d-b427-64eb73519b58.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_72ecfa7b21a75a43361784315aedc3b6-975df4b6-9b32-4672-9eab-dd7cc78aea77.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_83e33aa713a5fed8c0f1fd7b83beb554-ba2e9718-bf0b-4d27-aafb-58ec471afc52.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_91c6d2f42b4b5f76fa3022d1d59929b6-c70c09df-c862-4bbe-a236-18193d062d73.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_266ae51ca868821d43934b9eaa286f0d-466ae3f7-c7a3-4d88-bdf2-ec58c5ac6447.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_355b53f1cff11c24296d32af448ac12b-3f64baad-5864-4e6b-86cf-b65231253280.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_566f1052451d2fee32dcc8c40eec8afd-a548173f-4659-40db-b07e-d4a7849f58b6.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_0739f4fa4ebf1fa5ccce9975cd413328-336487b7-85b6-41ca-a4f6-eac510989cc7.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_99c4e140a222a33fe93b3cc6e930a16a-495928de-610e-43f1-8d49-9d1779fc0227.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_786d2833a5752cbebb71468640b343e2-24fc2417-e301-4802-98af-0252bfaf4a82.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_537d701605dbb560ff4bab9e6bb49f54-81b6d2c3-c90b-4a22-8f08-650ae3cdb6ba.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_834f667dde113c7681c03c4d2c71ec9a-65931a94-ffb4-413f-913a-03c1a7b45d78.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_5069f73b6d8509395a0484b8a650f550-2b29353b-0646-489d-a701-ace3990ee7ae.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_1760d9f1ef3918ec11d44a773da2c105-1ed54cab-7110-4719-be21-9344200df0b1.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_8973de7f4ac9002ea9f353665112d917-5e6e36aa-07f2-4848-8e84-0f716ed3a1c3.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_a171c9a300a63cadebe54d86d5d33806-d83bb0ae-b3de-4ae7-97fe-8ccc3ac7e360.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_1937817b6c66450a0340067265c9f76d-3723309d-179e-462c-8951-ac94a703f06d.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_a683973c4c4f0d98a1bc24a3366a9e4b-b04d4beb-e7ae-4a5e-861e-ccf1ae61bb9a.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_aa29a4329a3a2a3572c7f19ef095ac17-2e404b9d-d972-4041-a143-48530b92855a.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_acc82b96f8e9ada554666fef2b73adc8-31a98133-d336-4efb-b440-c25dde5d4031.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_b04e73b8c9b4cdd603ba4e6fbb8d92e4-e81d72e7-653a-4a22-ad51-388a2821c897.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_bc32f08799db30fed288ae42ee02d0cf.0000000-4c864c0c-42ec-4e07-b81d-47a896e722ee.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_bf14efec42716bebb5a5ad21e149f885-6b63e75f-dccd-46f2-be8a-f9ccb2662522.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_bfb94d335ddde3e65b321365f697d1d9-bb6c946e-0303-4d35-a9b9-6e2830e82fb0.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_c72e0f0036d5eaff5f961c2a3a06f778-11583926-2171-45b8-958a-60efea611221.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_decd2afa62028acbcfe323df16981530-3f7dc3d4-6415-4f7d-87c2-a1891a4bd74a.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_e1d7dd631ec21ab066f340b695c5ee3b-e7c8525c-d0a3-4da7-bf92-1037f97a327d.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_cf5cf1fc0a73b8f369f5760ba16e7418-0d59624c-e140-480e-9fe3-288912ea31c0.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_ddf2a9753c58be86b16230bc084b0ca3-c8bddfb2-838f-422d-9a84-57ba00e9d4f5.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_f6cdd33abfa3586585e29b5ec1fabfdc-9c4f9379-e052-479e-be3f-f8a12126ebc2.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_e7eeec0e2f23490ea2df042fb1a32620-34461990-a4f1-48ee-87ad-334a785f631a.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_e433954d469ed52910bc539c1d97603a-aa61ae16-bbfc-47cf-8e43-90be128666fc.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_f748dc4834bbad2b4713f9f427c1836b-e306bfe1-f718-49d5-b44d-6795a4160823.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_ee59db47168be84a4b5421e85b9197f1-b83d5de0-c3eb-4fa9-b44e-667c911cad4c.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_fa5188262500110ec631eacbd52f7205-dca253d1-b0cd-4f44-a373-7a10b1f0bf17.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_fc2125b1f9756344491587d10e010972-229ca485-ced0-4b75-ac9f-474241f535bb.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_ff4d39b98ab30397496dfe35d00d4052.0000000-ac33f36c-17f3-4436-8817-6486cc63125a.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_imgi_13_a6f276bc8152055cf53460ef19701449-9d0d3e6e-ccd4-49f3-a6ad-ce2c1ddf2552.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_imgi_23_8fab053ef7bda237cc90e29b01a12582-c8bd2b18-9cce-4dc5-884d-e6b308651155.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_imgi_25_084dd219dc9fa697794295f3e3bfd61c-a3c56eee-3067-43f7-bdc4-a6bf7f28538d.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_imgi_32_d453a81f2078f5aa47824fa57296dd14-565218fb-325b-4b7f-8800-36977d8633cc.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_imgi_58_2029c7c09b283c9701920ba6ae47d969-d7a6145c-7670-45ce-9b90-acb0d040f7b2.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_0b15ccca7688a0d96ab798085b939b24-d668ef8e-197d-4631-b2c1-58bdf5610b02.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_0c7e666ccc82a4c2c1ddb7814248494d-8f0e6467-7696-4f9d-853b-8eedeb18379e.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_0c9a43074ddbd7b64495f34c4838aea5-a452509a-e601-4b05-a1fa-c7a5a1a0b18a.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_0ef922e00fdeef677fcf81c952a1dc16-8760e9f9-16f3-473f-83c1-36b62deaceb4.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_0c24462b47a55dc9f727d5f663c1d23b-abf55c1f-f778-4cb8-a78c-9d683b248152.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_2bbc7575dc920812e59183d113cc87fe-277beeae-3d21-463c-ba8e-10cff4259be0.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_4a595115444ccb0b59c03b936f03c2f3-1ae10bcc-5f3f-4451-8f5e-992396ecfd05.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_2de142677013d1962534bf1224ccd48d-89c1c281-0134-4c30-97b9-2b235eebe906.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_3b8b65c356ac5329650398d183fba9fc-a06ecbe1-eb6a-4dcd-ae5f-44f32b3a1a6e.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_5bba099f7b18066a9355a3f1ee527c71-f02b5e50-40ec-4e4e-992f-07e6db737572.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_5f7a197b5bd20a083282597dfe344b6e.0000000-a72d508e-12f1-4e3b-a6cb-2c22caddb6df.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_5ff62486982c95d7fe649daafd362f7c-6476efc3-fd44-4085-8fb1-f036e61d29be.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_07f71c1dd2d5fda572593595c9c6390b-485cbbe1-f472-45a5-a68b-f3759537c3a1.png",
+  "c__Users_user_AppData_Roaming_Cursor_User_workspaceStorage_b63b3df5c061f9e127085b41f5f08647_images_07f382fa854058f3b83874c8c9522e06-46fe0c14-32f1-4742-a5fd-5e7dfe5a11aa.png",
+];
+
+function main() {
+  fs.mkdirSync(OUT_DIR, { recursive: true });
+  let copied = 0;
+  for (let i = 0; i < FILES.length; i++) {
+    const src = path.join(ASSETS, FILES[i]);
+    const dest = path.join(OUT_DIR, `bongochoti_online_golpo_${String(i + 1).padStart(2, "0")}.png`);
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, dest);
+      console.log(`${FILES[i].slice(0, 40)}... -> bongochoti_online_golpo_${String(i + 1).padStart(2, "0")}.png`);
+      copied++;
+    } else {
+      console.warn("Missing:", src);
+    }
+  }
+  console.log(`\nDone. ${copied}/${FILES.length} images copied to public/story_cover/`);
+}
+
+main();

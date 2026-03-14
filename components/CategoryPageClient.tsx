@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import ContentWrapper from "@/components/ContentWrapper";
 import BackButton from "@/components/BackButton";
 import PaginatedStoriesList from "@/components/PaginatedStoriesList";
+import PopAdPlacement from "@/components/PopAdPlacement";
+import PageStuckBanner from "@/components/PageStuckBanner";
 import { getPublishedStoriesFromFirestore } from "@/lib/firestoreStoriesClient";
+import { usePageStuck } from "@/hooks/usePageStuck";
 import type { Story } from "@/types/story";
 
 export default function CategoryPageClient({
@@ -16,6 +19,7 @@ export default function CategoryPageClient({
 }) {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
+  const stuck = usePageStuck(loading, 5500);
 
   useEffect(() => {
     let cancelled = false;
@@ -48,7 +52,8 @@ export default function CategoryPageClient({
           <BackButton href="/categories/" label="ক্যাটাগরি" />
         </div>
         <h1 className="mb-6 text-2xl font-bold text-white md:text-3xl">{label}</h1>
-        <p className="text-white/60">লোড হচ্ছে...</p>
+        <p className="font-bangla text-white/60">লোড হচ্ছে...</p>
+        <PageStuckBanner show={stuck} onRefresh={() => window.location.reload()} />
       </ContentWrapper>
     );
   }
@@ -58,11 +63,15 @@ export default function CategoryPageClient({
       <div className="mb-6 flex items-center gap-4">
         <BackButton href="/categories/" label="ক্যাটাগরি" />
       </div>
-      <h1 className="mb-6 text-2xl font-bold text-white md:text-3xl">{label}</h1>
+      <h1 className="mb-2 text-2xl font-bold text-white md:text-3xl">{label}</h1>
+      <PopAdPlacement placement="category-page" />
+      <p className="font-bangla mb-6 text-sm text-white/70">
+        Bangla choti golpo, choti kahini — এই বিভাগের সব bangla choti গল্প।
+      </p>
       <PaginatedStoriesList
         stories={stories}
         basePath={`/categories/${slug}/`}
-        emptyMessage="No stories yet."
+        emptyMessage="এই ক্যাটাগরিতে এখনও গল্প নেই।"
       />
     </ContentWrapper>
   );

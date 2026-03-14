@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { loadAllAdScripts } from "@/lib/ads";
+import { loadAllAdScripts, loadInvokeAd } from "@/lib/ads";
 
 type Placement = "home-top" | "in-feed" | "story-bottom" | "story-mid" | "story-part-break" | "videos-top" | "videos-in-feed" | "videos-detail";
 
@@ -22,6 +22,7 @@ export default function AdSlot({ placement }: AdSlotProps) {
           if (!entry.isIntersecting) return;
           el.setAttribute("data-loaded", "true");
           loadAllAdScripts();
+          loadInvokeAd();
         });
       },
       { rootMargin: "300px", threshold: 0.1 }
@@ -37,7 +38,7 @@ export default function AdSlot({ placement }: AdSlotProps) {
       id={`ad-${placement}`}
       data-placement={placement}
       data-effectivegatecpm
-      className="min-h-[90px] rounded-lg border border-white/10 bg-white/5 px-4 py-4"
+      className="min-h-0 rounded-lg px-1 py-1"
       role="img"
       aria-label="Advertisement"
     />

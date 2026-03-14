@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import BannerAd from "@/components/BannerAd";
+import SmartLinkAd from "@/components/SmartLinkAd";
+import PopAdPlacement from "@/components/PopAdPlacement";
 import { BackIcon } from "@/components/icons";
 import { useAuth } from "@/hooks/useAuth";
 import { addWatchedVideo } from "@/lib/library";
@@ -19,11 +21,16 @@ type PlaybackMode =
   | "iframeOutbound"
   | "externalLink";
 
-/** Order: embed/source in frame first (play from original site), then proxy, then link */
+/** True if URL is our Vercel Blob – use directly, no proxy needed */
+function isBlobUrl(url: string): boolean {
+  return /blob\.vercel-storage\.com/i.test(url);
+}
+
+/** Order: direct (Blob or proxy) first so users stay on site, then embed, then link */
 function getPlaybackMode(video: Video, directFailed: boolean): PlaybackMode {
   if (video.embedCode) return "embedCode";
   if (video.embedUrl) return "embedUrl";
-  if (video.outboundUrl) return "iframeOutbound"; // source page in our frame
+  if (video.outboundUrl) return "iframeOutbound";
   if (video.directVideoUrl && !directFailed) return "direct";
   return "externalLink";
 }
@@ -127,7 +134,6 @@ export default function VideoDetailClient({ video }: VideoDetailClientProps) {
 
       <article className="mx-auto max-w-4xl px-4 md:px-6">
         <div className="mb-4">
-          <BannerAd placement="story-top" variant="leaderboard" />
         </div>
 
         <h1 className="font-bangla mb-4 text-xl font-bold text-white md:text-2xl">
@@ -160,7 +166,11 @@ export default function VideoDetailClient({ video }: VideoDetailClientProps) {
         >
           {mode === "direct" && (
             <video
-              src={`/api/video-proxy?id=${encodeURIComponent(video.id)}`}
+              src={
+                video.directVideoUrl && (isBlobUrl(video.directVideoUrl) || video.directVideoUrl.startsWith("/"))
+                  ? video.directVideoUrl
+                  : `/api/video-proxy?id=${encodeURIComponent(video.id)}`
+              }
               controls
               playsInline
               className="h-full w-full"
@@ -209,12 +219,11 @@ export default function VideoDetailClient({ video }: VideoDetailClientProps) {
               referrerPolicy="no-referrer-when-downgrade"
             />
           )}
-          {/* When only outboundUrl – show big CTA in player area (backup) */}
+          {/* When only outboundUrl – show big CTA in player area (backup). Click = ad then open. */}
           {mode === "externalLink" && video.outboundUrl && (
-            <a
-              href={video.outboundUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => window.open(video.outboundUrl!, "_blank", "noopener,noreferrer")}
               className="flex h-full w-full flex-col items-center justify-center gap-4 bg-gradient-to-b from-[var(--primary)]/30 to-black p-6 text-center transition-colors hover:from-[var(--primary)]/40 hover:to-black"
             >
               <span className="flex size-20 items-center justify-center rounded-full bg-[var(--primary)] text-white">
@@ -225,22 +234,21 @@ export default function VideoDetailClient({ video }: VideoDetailClientProps) {
               <span className="font-bangla text-lg font-semibold text-white">
                 ভিডিও দেখতে ক্লিক করুন
               </span>
-              <span className="text-sm text-white/70">সোর্স সাইটে খুলবে</span>
-            </a>
+              <span className="font-bangla text-sm text-white/70">সোর্স সাইটে খুলবে</span>
+            </button>
           )}
         </div>
 
-        {/* Fallback link – show for embed/iframe/direct so user can open source if player fails */}
+        {/* Fallback link – show for embed/iframe/direct so user can open source if player fails. Click = ad then open. */}
         {video.outboundUrl &&
           (mode === "embedCode" ||
             mode === "embedUrl" ||
             mode === "iframeOutbound" ||
             directFailed ||
             mode === "direct") && (
-            <a
-              href={video.outboundUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => window.open(video.outboundUrl!, "_blank", "noopener,noreferrer")}
               className="font-bangla mt-4 flex w-full items-center justify-center gap-3 rounded-lg border-2 border-[var(--primary)] bg-[var(--primary)]/20 px-6 py-4 text-lg font-semibold text-[var(--primary)] transition-colors hover:bg-[var(--primary)]/30"
             >
               <span>ভিডিও দেখতে এখানে ক্লিক করুন</span>
@@ -257,11 +265,26 @@ export default function VideoDetailClient({ video }: VideoDetailClientProps) {
                   d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                 />
               </svg>
-            </a>
+            </button>
           )}
 
+        <PopAdPlacement placement="video-detail" />
+        {/* CTA: matches "ভিডিও দেখতে" button style — natural next action */}
+        <div className="mt-6">
+          <SmartLinkAd
+            placement="video-cta"
+            variant="cta-large"
+            label="আরও ভিডিও দেখুন"
+          />
+        </div>
+
+        {/* Phase 1: 1 banner at bottom only */}
         <div className="mt-6">
           <BannerAd placement="story-bottom" variant="rectangle" />
+        </div>
+
+        <div className="mt-4 flex flex-wrap justify-center gap-3">
+          <SmartLinkAd placement="video-footer" variant="primary" label="আরও কন্টেন্ট এক্সপ্লোর করুন" />
         </div>
 
         {video.tags.length > 0 && (
@@ -269,7 +292,7 @@ export default function VideoDetailClient({ video }: VideoDetailClientProps) {
             {video.tags.map((tag) => (
               <span
                 key={tag}
-                className="font-bangla rounded-full bg-white/10 px-3 py-1 text-xs text-white/80"
+                className="font-bangla rounded-full border border-white/10 bg-transparent px-3 py-1 text-xs text-white/80"
               >
                 {tag}
               </span>
@@ -277,7 +300,7 @@ export default function VideoDetailClient({ video }: VideoDetailClientProps) {
           </div>
         )}
 
-        <div className="font-bangla mt-6 flex flex-wrap items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-4 py-3">
+        <div className="font-bangla mt-6 flex flex-wrap items-center gap-3 rounded-lg border border-white/10 bg-transparent px-4 py-3">
           <span className="text-xs text-white/60">শেয়ার লিংক:</span>
           <code className="min-w-0 flex-1 truncate text-sm text-white/90">
             {typeof window !== "undefined" ? shareUrl : `/videos/?watch=${video.id}`}

@@ -13,4 +13,10 @@ export interface Video {
   status: "active" | "hidden";
   clicks?: number;
   createdAt: Date;
+  /** Optional: e.g. "720p", "1080p" */
+  resolution?: string;
+  /** Optional: view count for display */
+  viewCount?: number;
+  /** Optional: duration in seconds or "10 min" string */
+  duration?: string | number;
 }

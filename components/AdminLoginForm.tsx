@@ -59,7 +59,7 @@ export default function AdminLoginForm({ denied }: AdminLoginFormProps) {
             onChange={(e) => setEmail(e.target.value)}
             placeholder={INITIAL_ADMIN_EMAIL}
             required
-            className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+            className="w-full rounded-lg border border-white/10 bg-transparent px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
           />
         </div>
         <div>
@@ -72,7 +72,7 @@ export default function AdminLoginForm({ denied }: AdminLoginFormProps) {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+            className="w-full rounded-lg border border-white/10 bg-transparent px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
           />
         </div>
         {error && (

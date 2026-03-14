@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ContentWrapper from "./ContentWrapper";
 import BackButton from "./BackButton";
-import AdSlot from "./AdSlot";
+import PopAdPlacement from "./PopAdPlacement";
 import VideosListClient from "./VideosListClient";
 import VideoDetailClient from "./VideoDetailClient";
+import PageStuckBanner from "./PageStuckBanner";
 import { getVideosFromFirestore, getVideoByIdFromFirestore } from "@/lib/firestoreVideos";
+import { usePageStuck } from "@/hooks/usePageStuck";
 import type { Video } from "@/types/video";
 
 function parseVideo(v: Record<string, unknown>): Video {
@@ -17,18 +19,39 @@ function parseVideo(v: Record<string, unknown>): Video {
   } as Video;
 }
 
-async function fetchVideos(limitCount: number): Promise<Video[]> {
+async function fetchLocalVideos(): Promise<Video[]> {
   try {
-    const res = await fetch(`/api/videos?limit=${limitCount}`);
+    const res = await fetch("/api/videos/local");
     if (res.ok) {
       const data = await res.json();
       const list = data.videos || [];
       return list.map(parseVideo);
     }
   } catch {
-    /* API failed, fall through to Firestore */
+    /* ignore */
   }
-  return getVideosFromFirestore(limitCount);
+  return [];
+}
+
+async function fetchVideos(limitCount: number): Promise<Video[]> {
+  const [local, fromApi] = await Promise.all([
+    fetchLocalVideos(),
+    (async (): Promise<Video[]> => {
+      try {
+        const res = await fetch(`/api/videos?limit=${limitCount}`);
+        if (res.ok) {
+          const data = await res.json();
+          const list = data.videos || [];
+          return list.map(parseVideo);
+        }
+      } catch {
+        /* API failed, fall through to Firestore */
+      }
+      return getVideosFromFirestore(limitCount);
+    })(),
+  ]);
+  const apiSorted = fromApi.sort((a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0));
+  return [...local, ...apiSorted];
 }
 
 async function fetchVideoById(id: string): Promise<Video | null> {
@@ -101,11 +124,15 @@ export default function VideosPageClient() {
     };
   }, [watchId]);
 
+  const watchStuck = usePageStuck(watchLoading, 5500);
+  const listStuck = usePageStuck(loading, 5500);
+
   if (watchId) {
     if (watchLoading) {
       return (
         <div className="min-h-screen px-4 py-20 text-center">
           <p className="font-bangla text-white/70">লোড হচ্ছে...</p>
+          <PageStuckBanner show={watchStuck} onRefresh={() => window.location.reload()} />
         </div>
       );
     }
@@ -117,16 +144,16 @@ export default function VideosPageClient() {
       <div className="mb-6 flex items-center gap-4">
         <BackButton href="/" label="হোম" />
       </div>
-      <div className="mb-6">
-        <AdSlot placement="videos-top" />
-      </div>
-
       <h1 className="font-bangla mb-6 text-2xl font-bold text-white md:text-3xl">
         বাংলা ভিডিও
       </h1>
+      <PopAdPlacement placement="videos-page" />
 
       {loading ? (
-        <p className="font-bangla text-white/60">লোড হচ্ছে...</p>
+        <div>
+          <p className="font-bangla text-white/60">লোড হচ্ছে...</p>
+          <PageStuckBanner show={listStuck} onRefresh={() => window.location.reload()} />
+        </div>
       ) : (
         <VideosListClient videos={videos} />
       )}

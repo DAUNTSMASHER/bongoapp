@@ -1,9 +1,13 @@
 /**
  * GET /api/videos/[id]
- * Returns a single video by ID from Firestore (server-side).
+ * Returns a single video by ID. Checks local videos first, then Firestore.
  */
 
 import { NextResponse } from "next/server";
+
+export const revalidate = 60;
+const CACHE_CONTROL = "public, s-maxage=60, stale-while-revalidate=120";
+import { getLocalVideoById } from "@/lib/localVideos";
 import { initFirestore } from "@/scripts/crawler/saveToFirestore";
 import type { Video } from "@/types/video";
 
@@ -15,6 +19,15 @@ export async function GET(
     const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: "Missing video id" }, { status: 400 });
+    }
+
+    const localVideo = getLocalVideoById(id);
+    if (localVideo) {
+      const res = NextResponse.json({
+        video: { ...localVideo, createdAt: localVideo.createdAt?.toISOString?.() ?? new Date().toISOString() },
+      });
+      res.headers.set("Cache-Control", CACHE_CONTROL);
+      return res;
     }
 
     const firestore = initFirestore();
@@ -40,7 +53,9 @@ export async function GET(
       createdAt,
     };
 
-    return NextResponse.json({ video });
+    const res = NextResponse.json({ video });
+    res.headers.set("Cache-Control", CACHE_CONTROL);
+    return res;
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Failed to fetch video";
     return NextResponse.json({ error: msg }, { status: 500 });

@@ -33,6 +33,16 @@ export async function PUT(req: Request) {
     if (typeof body.slug === "string") updates.slug = body.slug.trim();
     if (typeof body.categorySlug === "string") updates.categorySlug = body.categorySlug.trim() || null;
     if (Array.isArray(body.tags)) updates.tags = body.tags;
+    if (typeof body.seoTitle === "string") updates.seoTitle = body.seoTitle.trim();
+    if (typeof body.seoDescription === "string") updates.seoDescription = body.seoDescription.trim();
+    if (Array.isArray(body.characterNames)) updates.characterNames = body.characterNames;
+    if (typeof body.coverImageUrl === "string") updates.coverImageUrl = body.coverImageUrl.trim() || null;
+    if (body.status === "published" || body.status === "draft") {
+      updates.status = body.status;
+      if (body.status === "published") {
+        updates.publishedAt = FieldValue.serverTimestamp();
+      }
+    }
 
     if (Object.keys(updates).length <= 1) {
       return NextResponse.json({ error: "No fields to update" }, { status: 400 });

@@ -2,30 +2,24 @@
  * Assign cover images to published stories in Firestore.
  * Run: npx tsx scripts/assignCoverImages.ts
  *
- * Uses images from public/story-covers/ (cover-001.png, cover-002.png, etc.)
- * and assigns them round-robin to published stories.
+ * Uses images from public/story_cover/ (bongochoti_online_golpo_01.png, etc).
+ * One random image per story. Add or replace images in story_cover/ - they are picked up on next run.
  */
 
-import * as fs from "fs";
-import * as path from "path";
 import { FieldValue } from "firebase-admin/firestore";
 import { initFirestore } from "./crawler/saveToFirestore";
+import { getLadyCoverImages } from "@/lib/coverImages";
 
-const COVERS_DIR = path.join(process.cwd(), "public", "story-covers");
-const COVER_IMAGES = fs.existsSync(COVERS_DIR)
-  ? fs
-      .readdirSync(COVERS_DIR)
-      .filter((f) => f.endsWith(".png") && f.startsWith("cover-"))
-      .sort()
-      .map((f) => `/story-covers/${f}`)
-  : [];
+const COVER_IMAGES = getLadyCoverImages();
 
 async function main() {
   if (COVER_IMAGES.length === 0) {
-    console.log("No cover images in public/story-covers/. Add PNG files first.");
+    console.log(
+      "No cover images. Add images to public/story_cover/ (bongochoti_online_golpo_01.png, etc.)"
+    );
     return;
   }
-  console.log(`Found ${COVER_IMAGES.length} cover images.`);
+  console.log(`Found ${COVER_IMAGES.length} cover images in story_cover/.`);
 
   const firestore = initFirestore();
   const col = firestore.collection("stories");
@@ -40,6 +34,7 @@ async function main() {
   const docs = snap.docs;
   let updated = 0;
 
+  // Assign covers uniformly: cycle through images so each gets equal use
   for (let i = 0; i < docs.length; i += BATCH_SIZE) {
     const batch = firestore.batch();
     const chunk = docs.slice(i, i + BATCH_SIZE);
@@ -51,7 +46,7 @@ async function main() {
     await batch.commit();
   }
 
-  console.log(`Assigned cover images to ${updated} story/stories.`);
+  console.log(`Assigned cover images to ${updated} story/stories (${COVER_IMAGES.length} images, round-robin).`);
 }
 
 main().catch((e) => {

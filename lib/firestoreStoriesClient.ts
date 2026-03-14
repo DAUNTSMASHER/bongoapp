@@ -10,6 +10,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { applyNameReplacementsToStory, type NameMappings } from "./nameReplacement";
 import type { Story } from "@/types/story";
 
 function toStory(docSnap: { id: string; data: () => Record<string, unknown> }): Story {
@@ -39,7 +40,18 @@ function toStory(docSnap: { id: string; data: () => Record<string, unknown> }): 
     seoDescription: d.seoDescription as string | undefined,
     hashtags: (Array.isArray(d.hashtags) ? d.hashtags : []) as string[],
     parts: (Array.isArray(d.parts) ? d.parts : []) as string[],
+    characterNames: Array.isArray(d.characterNames) ? (d.characterNames as string[]) : undefined,
   };
+}
+
+async function fetchNameMappings(): Promise<NameMappings> {
+  try {
+    const res = await fetch("/api/name-mappings");
+    const data = await res.json();
+    return (data.mappings || {}) as NameMappings;
+  } catch {
+    return {};
+  }
 }
 
 /**
@@ -58,26 +70,72 @@ export async function getPublishedStoriesFromFirestore(options?: {
   }
   const q = query(col, ...constraints, limit(limitCount));
   const snap = await getDocs(q);
-  const stories = snap.docs
+  let stories = snap.docs
     .map((d) => toStory({ id: d.id, data: () => d.data() }))
     .sort(
       (a, b) =>
         (b.publishedAt?.getTime() ?? b.createdAt.getTime()) -
         (a.publishedAt?.getTime() ?? a.createdAt.getTime())
     );
+  if (process.env.NEXT_PUBLIC_NAME_REPLACEMENT_ENABLED !== "true") {
+    return stories;
+  }
+  const mappings = await fetchNameMappings();
+  if (mappings && Object.keys(mappings).length > 0) {
+    stories = stories.map((s) => applyNameReplacementsToStory(s, mappings));
+  }
   return stories;
 }
 
 /**
- * Fetch one published story by ID (client-side).
+ * Fetch one published story by ID or slug (client-side).
  */
+function normalizeStoryId(id: string): string {
+  try {
+    id = decodeURIComponent(id);
+  } catch {
+    /* already decoded */
+  }
+  return id.trim().normalize("NFC");
+}
+
 export async function getPublishedStoryByIdFromFirestore(
   id: string
 ): Promise<Story | null> {
+  id = normalizeStoryId(id);
   const docRef = doc(db, "stories", id);
-  const snap = await getDoc(docRef);
-  if (!snap.exists()) return null;
+  let snap = await getDoc(docRef);
+  if (!snap.exists()) {
+    let slugQuery = query(
+      collection(db, "stories"),
+      where("slug", "==", id),
+      where("status", "==", "published"),
+      limit(1)
+    );
+    let slugSnap = await getDocs(slugQuery);
+    if (slugSnap.empty && id.includes("-")) {
+      const baseSlug = id.replace(/-[a-z0-9]+$/i, "");
+      if (baseSlug && baseSlug !== id) {
+        slugQuery = query(
+          collection(db, "stories"),
+          where("slug", "==", baseSlug),
+          where("status", "==", "published"),
+          limit(1)
+        );
+        slugSnap = await getDocs(slugQuery);
+      }
+    }
+    if (slugSnap.empty) return null;
+    snap = slugSnap.docs[0];
+  }
   const d = snap.data();
-  if (d.status !== "published") return null;
-  return toStory({ id: snap.id, data: () => d });
+  if (!d || d.status !== "published") return null;
+  const story = toStory({ id: snap.id, data: () => d });
+  if (process.env.NEXT_PUBLIC_NAME_REPLACEMENT_ENABLED !== "true") {
+    return story;
+  }
+  const mappings = await fetchNameMappings();
+  return mappings && Object.keys(mappings).length > 0
+    ? applyNameReplacementsToStory(story, mappings)
+    : story;
 }

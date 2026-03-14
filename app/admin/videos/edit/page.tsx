@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import ContentWrapper from "@/components/ContentWrapper";
+import { adminFetch } from "@/lib/adminApi";
 
 interface VideoData {
   id: string;
@@ -30,15 +31,17 @@ export default function EditVideoPage() {
     if (!id.trim()) return;
     setLoading(true);
     try {
-      const res = await fetch("/api/admin/get-video", {
+      const { ok, data, error } = await adminFetch("/api/admin/get-video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: id.trim() }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to load");
-      setVideo(data.video);
-      setForm(data.video);
+      if (!ok) throw new Error(error || (data?.error as string) || "Failed to load");
+      const videoData = data?.video as VideoData | undefined;
+      if (videoData) {
+        setVideo(videoData);
+        setForm(videoData);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Load failed");
       setVideo(null);
@@ -55,7 +58,7 @@ export default function EditVideoPage() {
     setSuccess(null);
     setSaving(true);
     try {
-      const res = await fetch("/api/admin/update-video", {
+      const { ok, data, error } = await adminFetch("/api/admin/update-video", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -68,8 +71,7 @@ export default function EditVideoPage() {
           tags: form.tags,
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Update failed");
+      if (!ok) throw new Error(error || (data?.error as string) || "Update failed");
       setVideo(form);
       setSuccess("Video updated.");
     } catch (err) {

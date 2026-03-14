@@ -22,12 +22,12 @@ async function main() {
   } else if (published === 0) {
     console.log(`Found ${total} draft(s) but published 0.`);
     if (skippedShort > 0) {
-      console.log(`  → ${skippedShort} skipped: body must be > 3000 characters`);
+      console.log(`  → ${skippedShort} skipped: body must be > 500 characters`);
     }
   } else {
     console.log(`Published ${published} story/stories. They will show on the site.`);
     if (skippedShort > 0) {
-      console.log(`  (${skippedShort} skipped: body ≤ 3000 chars)`);
+      console.log(`  (${skippedShort} skipped: body ≤ 500 chars)`);
     }
   }
 }
