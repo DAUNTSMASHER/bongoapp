@@ -31,6 +31,9 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["framer-motion"],
   },
+  outputFileTracingExcludes: {
+    "*": ["public/Videos/**"],
+  },
 };
 
 export default nextConfig;
