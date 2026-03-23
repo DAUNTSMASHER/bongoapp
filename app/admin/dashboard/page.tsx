@@ -10,16 +10,18 @@ import {
   AddImageTab,
   ManagementTab,
   AutomationTab,
+  MarketingTab,
 } from "@/components/admin/dashboard";
 
-type TabId = "add-story" | "add-video" | "add-image" | "management" | "automation";
+type TabId = "add-story" | "add-video" | "add-image" | "management" | "marketing" | "automation";
 
 const TABS: { id: TabId; label: string; shortLabel: string }[] = [
   { id: "add-story", label: "Add Story", shortLabel: "Story" },
   { id: "add-video", label: "Add Video", shortLabel: "Video" },
   { id: "add-image", label: "Add Image", shortLabel: "Image" },
   { id: "management", label: "Manage Content", shortLabel: "Manage" },
-  { id: "automation", label: "Automation", shortLabel: "Automation" },
+  { id: "marketing", label: "Marketing", shortLabel: "Marketing" },
+  { id: "automation", label: "Automation", shortLabel: "Auto" },
 ];
 
 export default function AdminDashboardPage() {
@@ -37,6 +39,7 @@ export default function AdminDashboardPage() {
     if (activeTab === "add-video") return <AddVideoTab />;
     if (activeTab === "add-image") return <AddImageTab />;
     if (activeTab === "management") return <ManagementTab />;
+    if (activeTab === "marketing") return <MarketingTab />;
     if (activeTab === "automation") return <AutomationTab />;
     return <AddStoryTab />;
   }, [activeTab]);
@@ -51,6 +54,7 @@ export default function AdminDashboardPage() {
             {activeTab === "add-video" && "Manually add a video link and thumbnail"}
             {activeTab === "add-image" && "Upload hot chobi gallery pictures"}
             {activeTab === "management" && "Edit or bulk delete content"}
+            {activeTab === "marketing" && "Distribute stories & auto-post to social channels"}
             {activeTab === "automation" && "Scrape and crawl external websites"}
           </p>
         </div>
