@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import AdminShell from "@/components/AdminShell";
 import { AdminCard } from "@/components/admin/AdminCard";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -15,6 +15,14 @@ const COUNTRIES = [
 ];
 
 export default function LoadTestPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-white">Loading Admin...</div>}>
+      <LoadTestContent />
+    </Suspense>
+  );
+}
+
+function LoadTestContent() {
   const [totalViews, setTotalViews] = useState(50);
   const [storyDuration, setStoryDuration] = useState(10); // in seconds
   const [selectedCountry, setSelectedCountry] = useState("");
