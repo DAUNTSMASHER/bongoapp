@@ -133,13 +133,22 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    // 3. Ping Google sitemap
+    // 3. Submit to search engines (Google + Bing + Yahoo)
     try {
-      const sitemapUrl = `${SITE_URL}/sitemap.xml`;
-      const pingRes = await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`);
-      log(`🔔 Google sitemap ping: ${pingRes.status}`);
+      log("🔎 Submitting sitemap to search engines...");
+      const res = await fetch(`${req.nextUrl.origin}/api/admin/submit-to-search-engines`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "sitemap" }),
+      });
+      const data = await res.json();
+      if (data.results) {
+        data.results.forEach((r: any) => {
+          log(`${r.ok ? "✅" : "❌"} ${r.engine}: ${r.status}`);
+        });
+      }
     } catch (err) {
-      log(`❌ Google ping failed: ${err}`);
+      log(`❌ Search engine submission failed: ${err}`);
     }
 
     return NextResponse.json({ ok: true, logs, distributed: storiesSnapshot?.size || 0 });

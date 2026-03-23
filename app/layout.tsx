@@ -44,10 +44,23 @@ export const metadata: Metadata = {
     locale: "bn_BD",
     siteName: "bongochoti",
     url: siteUrl,
+    title: "Bangla Choti | বাংলা চটি গল্প ও Sex Video",
+    description: "১৮০০+ বাংলা চটি গল্প ও ১০০০+ সেক্স ভিডিও। পড়ুন বাংলা চটি কাহিনী ও হট ভিডিও।",
+    images: [
+      {
+        url: `${siteUrl}/logo.png`,
+        width: 1200,
+        height: 630,
+        alt: "Bangla Choti | bongochoti — বাংলা চটি গল্প",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     site: "@bongochoti",
+    title: "Bangla Choti | বাংলা চটি গল্প ও Sex Video",
+    description: "১৮০০+ বাংলা চটি গল্প ও ১০০০+ সেক্স ভিডিও।",
+    images: [`${siteUrl}/logo.png`],
   },
   icons: {
     icon: [

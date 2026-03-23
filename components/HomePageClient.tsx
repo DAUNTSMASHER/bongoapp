@@ -117,9 +117,9 @@ export default function HomePageClient({ initialStories }: HomePageClientProps) 
       <ContentWrapper className="pt-2 md:pt-4 lg:pt-6">
         {/* SEO: keyword-rich intro — H1 with bangla choti for search visibility */}
         <section className="netflix-section mb-6 rounded-lg px-4 py-6 md:px-6 md:py-7">
-          <h1 className="font-bangla text-xl font-bold text-white md:text-2xl">
+          <h2 className="font-bangla text-xl font-bold text-white md:text-2xl">
             Bangla Choti | বাংলা চটি গল্প ও Sex Video | bangla choti golpo
-          </h1>
+          </h2>
           <h2 className="font-bangla mt-2 text-base font-semibold text-white/90 md:text-lg">
             বাংলা চটি গল্প, choti golpo, bangla panu golpo এক জায়গায়
           </h2>

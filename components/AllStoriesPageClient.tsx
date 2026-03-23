@@ -72,7 +72,7 @@ export default function AllStoriesPageClient() {
         <div className="mb-6 flex items-center gap-4">
           <BackButton href="/" label="হোম" />
         </div>
-        <h1 className="mb-6 font-bangla text-2xl font-bold text-white md:text-3xl">সব গল্প</h1>
+        <h2 className="mb-6 font-bangla text-2xl font-bold text-white md:text-3xl">সব গল্প</h2>
         <p className="font-bangla text-white/60">লোড হচ্ছে...</p>
         <PageStuckBanner show={stuck} onRefresh={() => window.location.reload()} />
       </ContentWrapper>

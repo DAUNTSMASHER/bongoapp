@@ -29,6 +29,7 @@ export async function GET() {
       telegramBotToken: data.telegramBotToken ? "••••configured" : "",
       telegramChatId: data.telegramChatId || "",
       autoPostEnabled: data.autoPostEnabled || false,
+      googleConnected: !!data.googleRefreshToken,
     });
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });

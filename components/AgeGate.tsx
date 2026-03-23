@@ -41,9 +41,9 @@ export default function AgeGate() {
           <p className="font-bangla text-sm font-medium uppercase tracking-wider text-white/60">
             সতর্কতা
           </p>
-          <h1 id="age-gate-title" className="font-bangla mt-2 text-xl font-bold text-white md:text-2xl">
+          <div id="age-gate-title" className="font-bangla mt-2 text-xl font-bold text-white md:text-2xl">
             আপনার বয়স কি ১৮ বছরের উপরে?
-          </h1>
+          </div>
         </div>
 
         <p className="font-bangla mb-6 text-center text-sm leading-relaxed text-white/70">

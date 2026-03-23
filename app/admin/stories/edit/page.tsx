@@ -195,103 +195,102 @@ export default function EditStoryPage() {
     }
   }
 
-  if (!form) {
-    return (
-      <ContentWrapper className="min-h-screen py-8">
-        <div className="mb-6 flex items-center gap-4">
-          <Link href="/admin/dashboard/" className="text-white/70 hover:text-white">
-            ← Dashboard
-          </Link>
-        </div>
-        <h1 className="mb-6 text-2xl font-bold text-white">Edit Story</h1>
-        {urlStoryId && loading ? (
-          <p className="text-white/70">Loading story…</p>
-        ) : (
-        <>
-        <p className="mb-4 text-sm text-white/60">
-          Select a category, then choose a story to edit.
-        </p>
-        <div className="max-w-xl space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-white/80">Category</label>
-              <select
-                value={categorySlug}
-                onChange={(e) => setCategorySlug(e.target.value)}
-                className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-              >
-                <option value="">— Select category —</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c.slug} value={c.slug}>{c.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-white/80">Story</label>
-              <select
-                value={storyId}
-                onChange={(e) => {
-                  const id = e.target.value;
-                  setStoryId(id);
-                  if (id) loadStoryById(id);
-                }}
-                disabled={!categorySlug || loadingList}
-                className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)] disabled:opacity-50"
-              >
-                <option value="">— Select story —</option>
-                {storyList.map((s) => (
-                  <option key={s.id} value={s.id}>
-                    {(s.headline || s.title || "Untitled").slice(0, 60)}
-                    {(s.headline || s.title || "").length > 60 ? "…" : ""}
-                  </option>
-                ))}
-              </select>
-              {loadingList && <p className="mt-1 text-xs text-white/50">Loading…</p>}
-              {listError && !loadingList && <p className="mt-1 text-xs text-red-400">{listError}</p>}
-            </div>
-          </div>
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-white/10" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-[#0a0a0a] px-3 text-white/50">or</span>
-            </div>
-          </div>
-          <form onSubmit={(e) => { e.preventDefault(); if (storyId.trim()) loadStoryById(storyId); }} className="flex gap-2">
-            <input
-              type="text"
-              value={storyId}
-              onChange={(e) => setStoryId(e.target.value)}
-              placeholder="Paste story ID (e.g. from Management)"
-              className="flex-1 rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-            />
-            <button
-              type="submit"
-              disabled={loading || !storyId.trim()}
-              className="rounded-lg bg-primary px-6 py-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
-            >
-              {loading ? "Loading…" : "Load"}
-            </button>
-          </form>
-        </div>
-        {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
-        </>
-        )}
-      </ContentWrapper>
-    );
-  }
-
   return (
-    <ContentWrapper className="min-h-screen py-8 pb-28">
+    <ContentWrapper className={`min-h-screen py-8 ${form ? "pb-28" : ""}`}>
       <div className="mb-6 flex items-center justify-between gap-4">
         <Link href="/admin/dashboard/" className="text-white/70 hover:text-white">
           ← Dashboard
         </Link>
-        <span className="text-xs text-white/50">{form.id}</span>
+        {form && <span className="text-xs text-white/50">{form.id}</span>}
       </div>
+      
       <h1 className="mb-6 text-2xl font-bold text-white">Edit Story</h1>
-      <form id="edit-story-form" onSubmit={handleSave} className="space-y-6">
+
+      {!form ? (
+        <>
+          {urlStoryId && loading ? (
+            <p className="text-white/70">Loading story…</p>
+          ) : (
+            <>
+              <p className="mb-4 text-sm text-white/60">
+                Select a category, then choose a story to edit.
+              </p>
+              <div className="max-w-xl space-y-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-white/80">Category</label>
+                    <select
+                      value={categorySlug}
+                      onChange={(e) => setCategorySlug(e.target.value)}
+                      className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+                    >
+                      <option value="">— Select category —</option>
+                      {CATEGORIES.map((c) => (
+                        <option key={c.slug} value={c.slug}>{c.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-white/80">Story</label>
+                    <select
+                      value={storyId}
+                      onChange={(e) => {
+                        const id = e.target.value;
+                        setStoryId(id);
+                        if (id) loadStoryById(id);
+                      }}
+                      disabled={!categorySlug || loadingList}
+                      className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)] disabled:opacity-50"
+                    >
+                      <option value="">— Select story —</option>
+                      {storyList.map((s) => (
+                        <option key={s.id} value={s.id}>
+                          {(s.headline || s.title || "Untitled").slice(0, 60)}
+                          {(s.headline || s.title || "").length > 60 ? "…" : ""}
+                        </option>
+                      ))}
+                    </select>
+                    {loadingList && <p className="mt-1 text-xs text-white/50">Loading…</p>}
+                    {listError && !loadingList && <p className="mt-1 text-xs text-red-400">{listError}</p>}
+                  </div>
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div className="w-full border-t border-white/10" />
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="bg-[#0a0a0a] px-3 text-white/50">or</span>
+                  </div>
+                </div>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (storyId.trim()) loadStoryById(storyId);
+                  }}
+                  className="flex gap-2"
+                >
+                  <input
+                    type="text"
+                    value={storyId}
+                    onChange={(e) => setStoryId(e.target.value)}
+                    placeholder="Paste story ID (e.g. from Management)"
+                    className="flex-1 rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading || !storyId.trim()}
+                    className="rounded-lg bg-primary px-6 py-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+                  >
+                    {loading ? "Loading…" : "Load"}
+                  </button>
+                </form>
+              </div>
+              {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+            </>
+          )}
+        </>
+      ) : (
+        <form id="edit-story-form" onSubmit={handleSave} className="space-y-6">
         <div>
           <label className="mb-1 block text-sm font-medium text-white/80">ID</label>
           <input
@@ -480,6 +479,7 @@ export default function EditStoryPage() {
           </p>
         </div>
       </form>
+      )}
 
       {/* Sticky save bar */}
       <div className="fixed bottom-0 left-0 right-0 z-10 border-t border-white/10 bg-[#0a0a0a]/95 py-4 backdrop-blur-md md:left-64">

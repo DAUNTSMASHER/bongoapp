@@ -17,10 +17,19 @@ export const metadata: Metadata = {
   alternates: { canonical: `${siteUrl}/` },
   openGraph: {
     title: "Bangla Choti | বাংলা চটি গল্প ও Sex Video | bongochoti",
-    description: "১৮০০+ bangla choti golpo, ১০০০+ bangla sex video। Read bangla choti kahini, watch bangla porn video. Free bangla choti online.",
+    description: "১৮০০+ বাংলা চটি গল্প, ১০০০+ বাংলা সেক্স ভিডিও। পড়ুন বাংলা চটি কাহিনী, দেখুন গরম ভিডিও। ফ্রি অনলাইন।",
     url: `${siteUrl}/`,
+    siteName: "bongochoti",
+    locale: "bn_BD",
     type: "website",
-    images: [{ url: `${siteUrl}/logo.png`, width: 512, height: 512, alt: "Bangla Choti | bongochoti — বাংলা চটি গল্প" }],
+    images: [
+      {
+        url: `${siteUrl}/logo.png`,
+        width: 1200,
+        height: 630,
+        alt: "Bangla Choti | bongochoti — বাংলা চটি গল্প",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",

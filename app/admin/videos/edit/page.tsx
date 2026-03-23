@@ -81,40 +81,6 @@ export default function EditVideoPage() {
     }
   }
 
-  if (!form) {
-    return (
-      <ContentWrapper className="min-h-screen py-8">
-        <div className="mb-6 flex items-center gap-4">
-          <Link href="/admin/dashboard/" className="text-white/70 hover:text-white">
-            ← Dashboard
-          </Link>
-        </div>
-        <h1 className="mb-6 text-2xl font-bold text-white">Edit Video</h1>
-        <p className="mb-4 text-sm text-white/60">
-          Enter the video ID (Firestore document ID) to load and edit.
-        </p>
-        <form onSubmit={handleLoad} className="max-w-xl space-y-4">
-          <input
-            type="text"
-            value={id}
-            onChange={(e) => setId(e.target.value)}
-            placeholder="Video ID"
-            className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-            disabled={loading}
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-lg bg-primary px-6 py-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
-          >
-            {loading ? "Loading..." : "Load Video"}
-          </button>
-        </form>
-        {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
-      </ContentWrapper>
-    );
-  }
-
   return (
     <ContentWrapper className="min-h-screen py-8">
       <div className="mb-6 flex items-center gap-4">
@@ -123,104 +89,133 @@ export default function EditVideoPage() {
         </Link>
       </div>
       <h1 className="mb-6 text-2xl font-bold text-white">Edit Video</h1>
-      <form onSubmit={handleSave} className="space-y-6">
-        <div>
-          <label className="mb-1 block text-sm font-medium text-white/80">ID</label>
-          <input
-            type="text"
-            value={form.id}
-            readOnly
-            className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white/60"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-white/80">Title (name)</label>
-          <input
-            type="text"
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-white/80">Thumbnail URL</label>
-          <input
-            type="url"
-            value={form.thumbnailUrl}
-            onChange={(e) => setForm({ ...form, thumbnailUrl: e.target.value })}
-            className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-white/80">Outbound URL</label>
-          <input
-            type="url"
-            value={form.outboundUrl}
-            onChange={(e) => setForm({ ...form, outboundUrl: e.target.value })}
-            className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-white/80">Embed URL</label>
-          <input
-            type="url"
-            value={form.embedUrl}
-            onChange={(e) => setForm({ ...form, embedUrl: e.target.value })}
-            className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-white/80">Direct video URL</label>
-          <input
-            type="url"
-            value={form.directVideoUrl}
-            onChange={(e) => setForm({ ...form, directVideoUrl: e.target.value })}
-            className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-white/80">Tags (comma-separated)</label>
-          <input
-            type="text"
-            value={Array.isArray(form.tags) ? form.tags.join(", ") : ""}
-            onChange={(e) =>
-              setForm({
-                ...form,
-                tags: e.target.value
-                  .split(",")
-                  .map((t) => t.trim())
-                  .filter(Boolean),
-              })
-            }
-            placeholder="tag1, tag2"
-            className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-          />
-        </div>
-        <div className="flex gap-4">
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-lg bg-primary px-6 py-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
-          >
-            {saving ? "Saving..." : "Save changes"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setVideo(null);
-              setForm(null);
-              setId("");
-              setError(null);
-              setSuccess(null);
-            }}
-            className="rounded-lg border border-white/20 px-6 py-3 text-white/80 hover:bg-white/10"
-          >
-            Load another
-          </button>
-        </div>
-      </form>
-      {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
-      {success && <p className="mt-4 text-sm text-green-400">{success}</p>}
+
+      {!form ? (
+        <>
+          <p className="mb-4 text-sm text-white/60">
+            Enter the video ID (Firestore document ID) to load and edit.
+          </p>
+          <form onSubmit={handleLoad} className="max-w-xl space-y-4">
+            <input
+              type="text"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              placeholder="Video ID"
+              className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+              disabled={loading}
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="rounded-lg bg-primary px-6 py-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+            >
+              {loading ? "Loading..." : "Load Video"}
+            </button>
+          </form>
+          {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+        </>
+      ) : (
+        <>
+          <form onSubmit={handleSave} className="space-y-6">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-white/80">ID</label>
+              <input
+                type="text"
+                value={form.id}
+                readOnly
+                className="w-full rounded-lg border border-white/10 bg-white/5 px-4 py-2 text-white/60"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-white/80">Title (name)</label>
+              <input
+                type="text"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-white/80">Thumbnail URL</label>
+              <input
+                type="url"
+                value={form.thumbnailUrl}
+                onChange={(e) => setForm({ ...form, thumbnailUrl: e.target.value })}
+                className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-white/80">Outbound URL</label>
+              <input
+                type="url"
+                value={form.outboundUrl}
+                onChange={(e) => setForm({ ...form, outboundUrl: e.target.value })}
+                className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-white/80">Embed URL</label>
+              <input
+                type="url"
+                value={form.embedUrl}
+                onChange={(e) => setForm({ ...form, embedUrl: e.target.value })}
+                className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-white/80">Direct video URL</label>
+              <input
+                type="url"
+                value={form.directVideoUrl}
+                onChange={(e) => setForm({ ...form, directVideoUrl: e.target.value })}
+                className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium text-white/80">Tags (comma-separated)</label>
+              <input
+                type="text"
+                value={Array.isArray(form.tags) ? form.tags.join(", ") : ""}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    tags: e.target.value
+                      .split(",")
+                      .map((t) => t.trim())
+                      .filter(Boolean),
+                  })
+                }
+                placeholder="tag1, tag2"
+                className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
+              />
+            </div>
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                disabled={saving}
+                className="rounded-lg bg-primary px-6 py-3 font-semibold text-white hover:bg-primary-hover disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save changes"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setVideo(null);
+                  setForm(null);
+                  setId("");
+                  setError(null);
+                  setSuccess(null);
+                }}
+                className="rounded-lg border border-white/20 px-6 py-3 text-white/80 hover:bg-white/10"
+              >
+                Load another
+              </button>
+            </div>
+          </form>
+          {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+          {success && <p className="mt-4 text-sm text-green-400">{success}</p>}
+        </>
+      )}
     </ContentWrapper>
   );
 }

@@ -51,7 +51,7 @@ export default function CategoryPageClient({
         <div className="mb-6 flex items-center gap-4">
           <BackButton href="/categories/" label="ক্যাটাগরি" />
         </div>
-        <h1 className="mb-6 text-2xl font-bold text-white md:text-3xl">{label}</h1>
+        <h2 className="mb-6 text-2xl font-bold text-white md:text-3xl">{label}</h2>
         <p className="font-bangla text-white/60">লোড হচ্ছে...</p>
         <PageStuckBanner show={stuck} onRefresh={() => window.location.reload()} />
       </ContentWrapper>

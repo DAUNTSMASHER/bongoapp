@@ -67,9 +67,9 @@ export default function ArchiveMonthClient({
         <div className="mb-6 flex items-center gap-4">
           <BackButton href="/archive/" label="আর্কাইভ" />
         </div>
-        <h1 className="font-bangla mb-6 text-2xl font-bold text-white md:text-3xl">
+        <h2 className="font-bangla mb-6 text-2xl font-bold text-white md:text-3xl">
           আর্কাইভ — {label}
-        </h1>
+        </h2>
         <p className="font-bangla text-white/60">লোড হচ্ছে...</p>
         <PageStuckBanner show={stuck} onRefresh={() => window.location.reload()} />
       </ContentWrapper>
