@@ -21,7 +21,7 @@ function toStory(doc: { id: string; data: () => Record<string, unknown> }): Stor
     slug: (d.slug as string) || doc.id,
     body: (d.body as string) || "",
     summary: d.summary as string | undefined,
-    coverImageUrl: d.coverImageUrl as string | undefined,
+    coverImageUrl: (d.coverImageUrl as string | undefined)?.replace(/\\/g, '/'),
     tags: (Array.isArray(d.tags) ? d.tags : []) as string[],
     categorySlug: d.categorySlug as string | undefined,
     language: (d.language as string) || "bn",
