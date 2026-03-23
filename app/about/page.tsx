@@ -109,6 +109,45 @@ export default function AboutPage() {
         </ul>
       </section>
 
+      {/* Social links */}
+      <section className="netflix-section mb-8 rounded-lg border border-white/10 p-6 md:p-8">
+        <h2 className="font-bangla text-lg font-bold text-white md:text-xl">
+          আমাদের সোশ্যাল প্রোফাইল
+        </h2>
+        <p className="font-bangla mt-2 text-sm text-white/75">
+          bangla choti পাঠকদের সাথে সবসময় যুক্ত থাকতে আমাদের অফিসিয়াল প্রোফাইলগুলো ফলো করুন।
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <Link
+            href="https://www.facebook.com/profile.php?id=61582754621127"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bangla inline-flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/90 transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/20"
+          >
+            <span className="text-[var(--primary)]">📘</span>
+            Facebook Page
+          </Link>
+          <Link
+            href="https://pin.it/6JrgTZObS"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bangla inline-flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/90 transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/20"
+          >
+            <span className="text-[var(--primary)]">📌</span>
+            Pinterest (bongochoti)
+          </Link>
+          <Link
+            href="https://bongochoti.tumblr.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bangla inline-flex items-center gap-2 rounded-md border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/90 transition-colors hover:border-[var(--primary)] hover:bg-[var(--primary)]/20"
+          >
+            <span className="text-[var(--primary)]">🔥</span>
+            Tumblr (bongochoti)
+          </Link>
+        </div>
+      </section>
+
       {/* Categories preview */}
       <section className="netflix-section mb-8 rounded-lg border border-white/10 p-6 md:p-8">
         <h2 className="font-bangla text-lg font-bold text-white md:text-xl">

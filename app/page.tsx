@@ -9,7 +9,7 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://bongochoti.com";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "Bangla Choti | বাংলা চটি গল্প ও Sex Video | ১৮০০+ Golpo, ১০০০+ Video",
+  title: "Bangla Choti | বাংলা চটি গল্প ও Sex Video",
   description:
     "Bangla choti — Read ১৮০০+ bangla choti golpo, choti kahini online. ১০০০+ bangla sex video, bangla porn video. বাংলা চটি গল্প free. bongochoti.com.",
   keywords: SEO_KEYWORDS,
@@ -36,5 +36,13 @@ export default async function HomePage() {
   } catch {
     // Firebase may not be configured (e.g. build without env)
   }
-  return <HomePageClient initialStories={stories} />;
+  return (
+    <>
+      {/* Server-rendered H1 for SEO tools (content also visible in client intro) */}
+      <h1 className="sr-only">
+        Bangla Choti | বাংলা চটি গল্প ও Sex Video — bongochoti
+      </h1>
+      <HomePageClient initialStories={stories} />
+    </>
+  );
 }

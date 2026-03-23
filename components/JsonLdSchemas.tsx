@@ -38,6 +38,11 @@ const organizationSchema = {
     "bongochoti হল bangla choti ও bangla choti golpo প্ল্যাটফর্ম। ১৮০০+ বাংলা চটি গল্প, choti kahini, ১০০০+ bangla sex video। Read bangla choti kahini, watch bangla porn video.",
   inLanguage: "bn",
   knowsAbout: SEO_KEYWORDS,
+  sameAs: [
+    "https://pin.it/6JrgTZObS",
+    "https://www.facebook.com/profile.php?id=61582754621127",
+    "https://bongochoti.tumblr.com",
+  ],
 };
 
 /** ItemList for homepage – rich results for "bangla choti", "sex video" queries. */

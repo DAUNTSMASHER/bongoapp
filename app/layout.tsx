@@ -30,7 +30,7 @@ const siteUrl =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Bangla Choti | বাংলা চটি গল্প ও Sex Video | ১৮০০+ Golpo, ১০০০+ Video | bongochoti",
+    default: "Bangla Choti | বাংলা চটি গল্প ও Sex Video",
     template: "%s | Bangla Choti | bongochoti",
   },
   description:

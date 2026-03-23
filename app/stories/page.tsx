@@ -22,5 +22,13 @@ export const metadata: Metadata = {
 };
 
 export default function AllStoriesPage() {
-  return <AllStoriesPageClient />;
+  return (
+    <>
+      {/* Server-rendered H1 for SEO tools */}
+      <h1 className="sr-only">
+        Bangla Choti — সব গল্প | Bangla Choti Golpo, Choti Kahini
+      </h1>
+      <AllStoriesPageClient />
+    </>
+  );
 }

@@ -118,10 +118,13 @@ export default function HomePageClient({ initialStories }: HomePageClientProps) 
         {/* SEO: keyword-rich intro — H1 with bangla choti for search visibility */}
         <section className="netflix-section mb-6 rounded-lg px-4 py-6 md:px-6 md:py-7">
           <h1 className="font-bangla text-xl font-bold text-white md:text-2xl">
-            Bangla Choti | বাংলা চটি গল্প ও Sex Video
+            Bangla Choti | বাংলা চটি গল্প ও Sex Video | bangla choti golpo
           </h1>
+          <h2 className="font-bangla mt-2 text-base font-semibold text-white/90 md:text-lg">
+            বাংলা চটি গল্প, choti golpo, bangla panu golpo এক জায়গায়
+          </h2>
           <p className="font-bangla mt-3 text-sm leading-relaxed text-white/80 md:text-base">
-            বিনামূল্যে <strong className="text-white/95">bangla choti</strong> ও <strong className="text-white/95">bangla choti golpo</strong> পড়ুন। <strong className="text-white/95">choti kahini</strong>, <strong className="text-white/95">panu golpo</strong> এবং bangla sex video — সব এক জায়গায়। bongochoti তে ১৮০০+ bangla choti stories, ১০০০+ ভিডিও।
+            বিনামূল্যে <strong className="text-white/95">bangla choti</strong>, <strong className="text-white/95">bangla choti golpo</strong> ও <strong className="text-white/95">choti golpo</strong> পড়ুন। <strong className="text-white/95">choti kahini</strong>, <strong className="text-white/95">bangla panu golpo</strong> এবং bangla sex video — সব এক জায়গায়। bongochoti তে ১৮০০+ bangla choti stories, ১০০০+ ভিডিও।
           </p>
           <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2">
             <span className="font-bangla flex items-baseline gap-1">

@@ -176,3 +176,14 @@ export function VideoIcon({ size = defaultSize, className = "", strokeWidth = de
     </svg>
   );
 }
+
+export function MegaphoneIcon({ size = defaultSize, className = "", strokeWidth = defaultStroke }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden>
+      <path d="m3 11 18-5v12L3 14v-3z" />
+      <path d="M11 6v10" />
+      <path d="M16 8v6" />
+      <path d="M21 12h-2" />
+    </svg>
+  );
+}

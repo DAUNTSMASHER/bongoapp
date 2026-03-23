@@ -15,6 +15,12 @@ export interface CrawledVideo {
   directVideoUrl?: string; // .mp4, .webm, .m3u8 - play in our <video> player
   tags: string[];
   sourceSite: string;
+  /** Duration like "0:58" or "18:31" (parsed from BCK card) */
+  duration?: string;
+  /** View count (parsed from "340K", "2.2M" etc.) */
+  viewCount?: number;
+  /** HD/720p etc. from card badge */
+  resolution?: string;
 }
 
 const FETCH_TIMEOUT_MS = 20000;
@@ -29,14 +35,26 @@ function resolveUrl(baseUrl: string, href: string): string {
   }
 }
 
+const PUPPETEER_ERROR_MSG =
+  "Chrome not found. Run: npx puppeteer browsers install chrome. Or run crawl from local dev (npm run dev).";
+
 async function fetchWithPuppeteer(url: string): Promise<string> {
   const puppeteer = await import("puppeteer");
-  const browser = await puppeteer.default.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-blink-features=AutomationControlled"],
-  });
+  let browser;
   try {
-    const page = await browser.newPage();
+    browser = await puppeteer.default.launch({
+      headless: true,
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-blink-features=AutomationControlled"],
+    });
+  } catch (e) {
+    const msg = String(e);
+    if (msg.includes("Could not find Chrome") || msg.includes("puppeteer") || msg.includes("Chrome")) {
+      throw new Error(PUPPETEER_ERROR_MSG);
+    }
+    throw e;
+  }
+  try {
+    const page = await browser!.newPage();
     await page.setUserAgent(USER_AGENT);
     await page.setExtraHTTPHeaders({ "Accept-Language": "en-US,en;q=0.9" });
     await page.setJavaScriptEnabled(true);
@@ -48,7 +66,7 @@ async function fetchWithPuppeteer(url: string): Promise<string> {
     await page.close();
     return html;
   } finally {
-    await browser.close();
+    await browser!.close();
   }
 }
 
@@ -126,13 +144,35 @@ function extractEmbedOrVideoUrl(html: string, baseUrl: string): string | undefin
   return undefined;
 }
 
+/** Parse "340K", "2.2M" to number */
+function parseViewCount(str: string): number | undefined {
+  const m = str.match(/^([\d.]+)\s*([KMB])?$/i);
+  if (!m) return undefined;
+  let n = parseFloat(m[1]);
+  const unit = (m[2] || "").toUpperCase();
+  if (unit === "K") n *= 1000;
+  else if (unit === "M") n *= 1_000_000;
+  else if (unit === "B") n *= 1_000_000_000;
+  return Math.round(n);
+}
+
 /**
  * Parse listing page - extract video card links.
- * BanglaChotiKahinii: links like /videos/slug-here/
+ * BanglaChotiKahinii: cards show "HD0:58 Title 340K 88% 9 months ago"
  */
-function parseListingPage(html: string, baseUrl: string): Array<{ url: string; title: string; thumbnail?: string }> {
+function parseListingPage(
+  html: string,
+  baseUrl: string
+): Array<{ url: string; title: string; thumbnail?: string; duration?: string; viewCount?: number; resolution?: string }> {
   const $ = cheerio.load(html);
-  const items: Array<{ url: string; title: string; thumbnail?: string }> = [];
+  const items: Array<{
+    url: string;
+    title: string;
+    thumbnail?: string;
+    duration?: string;
+    viewCount?: number;
+    resolution?: string;
+  }> = [];
   const seen = new Set<string>();
 
   $('a[href*="/videos/"]').each((_, el) => {
@@ -150,17 +190,44 @@ function parseListingPage(html: string, baseUrl: string): Array<{ url: string; t
     )
       return;
     if (seen.has(full)) return;
+    if (
+      full.includes("/terms") ||
+      full.includes("/dmca") ||
+      full.includes("/2257") ||
+      full.includes("/contact") ||
+      full.includes("/privacy")
+    )
+      return;
     seen.add(full);
+    const rawText = $(el).text().trim().replace(/\s+/g, " ");
+    const imgAlt = $(el).find("img").attr("alt");
     const title =
-      $(el).find("img").attr("alt") ||
-      $(el).attr("title") ||
-      $(el).text().trim().replace(/\s+/g, " ").slice(0, 120) ||
+      imgAlt?.trim() ||
+      $(el).attr("title")?.trim() ||
+      rawText.slice(0, 120) ||
       "Video";
+    if (/^(Terms|DMCA|18\s*U\.?S\.?C\.?|Contact|Privacy)$/i.test(title.trim())) return;
     const thumb = $(el).find("img").attr("src");
+
+    // Parse duration (0:58, 18:31), views (340K, 2.2M), HD badge from card text
+    let duration: string | undefined;
+    let viewCount: number | undefined;
+    let resolution: string | undefined;
+    const durMatch = rawText.match(/(?:HD)?(\d{1,2}:\d{2})\b/);
+    if (durMatch) {
+      duration = durMatch[1];
+      if (/^HD/i.test(rawText)) resolution = "HD";
+    }
+    const viewMatch = rawText.match(/\b([\d.]+)\s*([KMB])\b/i);
+    if (viewMatch) viewCount = parseViewCount(viewMatch[1] + (viewMatch[2] || ""));
+
     items.push({
       url: full,
       title: title || "Video",
       thumbnail: thumb ? resolveUrl(baseUrl, thumb) : undefined,
+      duration,
+      viewCount,
+      resolution,
     });
   });
 
@@ -173,8 +240,7 @@ function parseListingPage(html: string, baseUrl: string): Array<{ url: string; t
  */
 async function crawlDetailPage(
   pageUrl: string,
-  title: string,
-  thumbnail?: string,
+  item: { title: string; thumbnail?: string; duration?: string; viewCount?: number; resolution?: string },
   usePuppeteer = false
 ): Promise<Partial<CrawledVideo>> {
   const html = await fetchHtml(pageUrl, usePuppeteer);
@@ -185,13 +251,16 @@ async function crawlDetailPage(
 
   return {
     id: `bck-${id}`,
-    title,
-    thumbnailUrl: thumbnail || "",
+    title: item.title,
+    thumbnailUrl: item.thumbnail || "",
     outboundUrl: pageUrl,
     directVideoUrl: direct,
     embedUrl: embed, // always save when found – /videos/embed/ID works better than get_file
     tags: [],
     sourceSite: "banglachotikahinii",
+    duration: item.duration,
+    viewCount: item.viewCount,
+    resolution: item.resolution,
   };
 }
 
@@ -199,18 +268,22 @@ async function crawlDetailPage(
  * Crawl a BanglaChotiKahinii-style listing URL.
  * Returns Video-shaped objects with directVideoUrl or embedUrl for in-app playback.
  */
+export type CrawlProgressCallback = (current: number, total: number, message: string) => void;
+
 export async function crawlBanglaChotiListing(
   listingUrl: string,
-  options?: { maxVideos?: number; usePuppeteer?: boolean }
+  options?: { maxVideos?: number; usePuppeteer?: boolean; onProgress?: CrawlProgressCallback }
 ): Promise<CrawledVideo[]> {
   const max = options?.maxVideos ?? 10;
+  const onProgress = options?.onProgress;
   let usePuppeteer = options?.usePuppeteer ?? false;
   let html: string;
+  onProgress?.(0, max, "Fetching listing page...");
   try {
     html = await fetchHtml(listingUrl, usePuppeteer);
   } catch (e) {
     if (String(e).includes("403") && !usePuppeteer) {
-      console.log("Site returned 403, retrying with Puppeteer (browser)...");
+      onProgress?.(0, max, "403 - Retrying with Puppeteer (browser)...");
       usePuppeteer = true;
       html = await fetchHtml(listingUrl, true);
     } else {
@@ -220,10 +293,12 @@ export async function crawlBanglaChotiListing(
   const items = parseListingPage(html, listingUrl).slice(0, max);
   const results: CrawledVideo[] = [];
 
-  for (const item of items) {
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    onProgress?.(i, items.length, `Crawling ${i + 1}/${items.length}: ${item.title.slice(0, 40)}...`);
     try {
       await new Promise((r) => setTimeout(r, 800));
-      const detail = await crawlDetailPage(item.url, item.title, item.thumbnail, usePuppeteer);
+      const detail = await crawlDetailPage(item.url, item, usePuppeteer);
       // Always include: outboundUrl (landing page) is enough for link-out. User clicks to watch on source.
       if (detail.id && detail.outboundUrl) {
         results.push({
@@ -235,6 +310,9 @@ export async function crawlBanglaChotiListing(
           directVideoUrl: detail.directVideoUrl,
           tags: detail.tags || [],
           sourceSite: detail.sourceSite || "banglachotikahinii",
+          duration: detail.duration,
+          viewCount: detail.viewCount,
+          resolution: detail.resolution,
         });
       }
     } catch {
@@ -248,6 +326,9 @@ export async function crawlBanglaChotiListing(
         outboundUrl: item.url,
         tags: [],
         sourceSite: "banglachotikahinii",
+        duration: item.duration,
+        viewCount: item.viewCount,
+        resolution: item.resolution,
       });
     }
   }

@@ -3,3 +3,7 @@ export { EditContentLinks } from "./EditContentLinks";
 export { VideosTab } from "./VideosTab";
 export { StoriesTab } from "./StoriesTab";
 export { ManagementTab } from "./ManagementTab";
+export { AddStoryTab } from "./AddStoryTab";
+export { AddVideoTab } from "./AddVideoTab";
+export { AddImageTab } from "./AddImageTab";
+export { AutomationTab } from "./AutomationTab";

@@ -19,16 +19,34 @@ export default function AddStoryPage() {
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [successId, setSuccessId] = useState<string | null>(null);
 
   async function handleUploadCover() {
     if (!coverFile) return;
     setUploading(true);
     setError(null);
     try {
-      const url = await uploadFile(coverFile, "story_cover");
-      setCoverImageUrl(url);
-      setCoverFile(null);
+      // 1) Try API (Vercel Blob): auto-renamed to story_cover/cover_YYYYMMDD_xxx.ext
+      const formData = new FormData();
+      formData.append("file", coverFile);
+      const res = await fetch("/api/admin/upload-story-cover", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && typeof data?.url === "string") {
+        setCoverImageUrl(data.url);
+        setCoverFile(null);
+        return;
+      }
+      // 2) If Blob not configured (503), fall back to Firebase
+      if (res.status === 503) {
+        const url = await uploadFile(coverFile, "story_cover");
+        setCoverImageUrl(url);
+        setCoverFile(null);
+        return;
+      }
+      setError(typeof data?.error === "string" ? data.error : "Upload failed");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -39,14 +57,14 @@ export default function AddStoryPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setSuccess(null);
+    setSuccessId(null);
     if (!title.trim() || !body.trim()) {
       setError("Title and body are required.");
       return;
     }
     const finalCover = coverImageUrl.trim();
     if (coverFile && !finalCover) {
-      setError("Upload failed. Paste a URL (e.g. /story_cover/xxx.png) below, or cancel the file and submit without cover.");
+      setError("Upload failed. Try again, paste a URL below, or clear the file and submit without cover.");
       return;
     }
     setLoading(true);
@@ -59,10 +77,11 @@ export default function AddStoryPage() {
           body: body.trim(),
           categorySlug: categorySlug || "uncategorized",
           coverImageUrl: finalCover || undefined,
+          status: "published",
         }),
       });
       if (!ok) throw new Error(error || (data.error as string) || "Failed to create");
-      setSuccess(`Story created and live. ID: ${data.id}`);
+      setSuccessId(data.id as string);
       setTitle("");
       setBody("");
       setCoverImageUrl("");
@@ -78,7 +97,7 @@ export default function AddStoryPage() {
     <div className="min-h-screen">
       <AdminPageHeader
         title="Add Story"
-        description="Create a new story with custom cover image. Upload or paste URL."
+        description="Create a new story. Upload cover from PC (Choose from PC), or paste image URL."
         backHref="/admin/stories/edit/"
         backLabel="Edit stories"
       />
@@ -93,8 +112,8 @@ export default function AddStoryPage() {
               uploading={uploading}
               selectedFile={coverFile}
               aspectRatio="story"
-              label=""
-              placeholder="Drag & drop cover image or click to upload"
+              label="Story cover"
+              placeholder="Click “Choose from PC” to pick an image, or drag & drop"
               disabled={loading}
             />
           </AdminCard>
@@ -160,9 +179,27 @@ export default function AddStoryPage() {
               {error}
             </div>
           )}
-          {success && (
+          {successId && (
             <div className="rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-400">
-              {success}
+              <p className="font-medium">Story is live and shows with the other stories.</p>
+              <div className="mt-2 flex flex-wrap gap-3">
+                <a
+                  href={`/stories/${successId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--primary)] underline hover:no-underline"
+                >
+                  View this story →
+                </a>
+                <a
+                  href="/stories/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/80 underline hover:text-white"
+                >
+                  View all stories
+                </a>
+              </div>
             </div>
           )}
         </form>

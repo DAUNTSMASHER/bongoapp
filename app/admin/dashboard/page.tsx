@@ -5,23 +5,27 @@ import { useSearchParams } from "next/navigation";
 import ContentWrapper from "@/components/ContentWrapper";
 import {
   AddAdminSection,
-  VideosTab,
-  StoriesTab,
+  AddStoryTab,
+  AddVideoTab,
+  AddImageTab,
   ManagementTab,
+  AutomationTab,
 } from "@/components/admin/dashboard";
 
-type TabId = "videos" | "stories" | "management";
+type TabId = "add-story" | "add-video" | "add-image" | "management" | "automation";
 
 const TABS: { id: TabId; label: string; shortLabel: string }[] = [
-  { id: "stories", label: "Stories", shortLabel: "Stories" },
-  { id: "videos", label: "Videos", shortLabel: "Videos" },
-  { id: "management", label: "Management", shortLabel: "Manage" },
+  { id: "add-story", label: "Add Story", shortLabel: "Story" },
+  { id: "add-video", label: "Add Video", shortLabel: "Video" },
+  { id: "add-image", label: "Add Image", shortLabel: "Image" },
+  { id: "management", label: "Manage Content", shortLabel: "Manage" },
+  { id: "automation", label: "Automation", shortLabel: "Automation" },
 ];
 
 export default function AdminDashboardPage() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as TabId | null;
-  const [activeTab, setActiveTab] = useState<TabId>("stories");
+  const [activeTab, setActiveTab] = useState<TabId>("add-story");
   const [showAddAdmin, setShowAddAdmin] = useState(false);
 
   useEffect(() => {
@@ -29,9 +33,12 @@ export default function AdminDashboardPage() {
   }, [tabParam]);
 
   const tabContent = useMemo(() => {
-    if (activeTab === "videos") return <VideosTab />;
-    if (activeTab === "stories") return <StoriesTab />;
-    return <ManagementTab />;
+    if (activeTab === "add-story") return <AddStoryTab />;
+    if (activeTab === "add-video") return <AddVideoTab />;
+    if (activeTab === "add-image") return <AddImageTab />;
+    if (activeTab === "management") return <ManagementTab />;
+    if (activeTab === "automation") return <AutomationTab />;
+    return <AddStoryTab />;
   }, [activeTab]);
 
   return (
@@ -40,9 +47,11 @@ export default function AdminDashboardPage() {
         <div>
           <h1 className="text-2xl font-bold text-white md:text-3xl">Dashboard</h1>
           <p className="mt-1 text-sm text-white/60">
-            {activeTab === "stories" && "Crawl, publish, and manage stories"}
-            {activeTab === "videos" && "Fetch and add videos"}
-            {activeTab === "management" && "List, delete, or edit stories in bulk"}
+            {activeTab === "add-story" && "Manually write and upload a new story"}
+            {activeTab === "add-video" && "Manually add a video link and thumbnail"}
+            {activeTab === "add-image" && "Upload hot chobi gallery pictures"}
+            {activeTab === "management" && "Edit or bulk delete content"}
+            {activeTab === "automation" && "Scrape and crawl external websites"}
           </p>
         </div>
         <button

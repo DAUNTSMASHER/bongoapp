@@ -79,7 +79,8 @@ export default function VideoCard({ video, index = 0, onBeforeNavigate }: VideoC
         ) : hasDirectVideo ? (
           <video
             src={
-              video.directVideoUrl?.startsWith("/")
+              video.directVideoUrl &&
+              (video.directVideoUrl.startsWith("/") || /blob\.vercel-storage\.com/i.test(video.directVideoUrl))
                 ? video.directVideoUrl
                 : `/api/video-proxy?id=${encodeURIComponent(video.id)}`
             }

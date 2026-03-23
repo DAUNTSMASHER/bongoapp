@@ -1,6 +1,6 @@
 /**
  * GET /api/videos/[id]
- * Returns a single video by ID. Checks local videos first, then Firestore.
+ * Returns a single video by ID. Checks local first, then Firestore.
  */
 
 import { NextResponse } from "next/server";
@@ -51,6 +51,9 @@ export async function GET(
       sourceSite: d.sourceSite,
       status: d.status === "hidden" ? "hidden" : "active",
       createdAt,
+      resolution: d.resolution,
+      viewCount: typeof d.viewCount === "number" ? d.viewCount : undefined,
+      duration: d.duration != null ? d.duration : undefined,
     };
 
     const res = NextResponse.json({ video });

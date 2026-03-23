@@ -24,8 +24,14 @@ export const metadata: Metadata = {
 
 export default function VideosPage() {
   return (
-    <Suspense fallback={<p className="font-bangla text-white/60 p-6">লোড হচ্ছে...</p>}>
-      <VideosPageClient />
-    </Suspense>
+    <>
+      {/* Server-rendered H1 for SEO tools */}
+      <h1 className="sr-only">
+        Bangla Sex Video | বাংলা পর্ন ভিডিও — bangla porn video
+      </h1>
+      <Suspense fallback={<p className="font-bangla text-white/60 p-6">লোড হচ্ছে...</p>}>
+        <VideosPageClient />
+      </Suspense>
+    </>
   );
 }

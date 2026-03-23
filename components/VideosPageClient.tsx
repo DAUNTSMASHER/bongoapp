@@ -33,19 +33,26 @@ async function fetchLocalVideos(): Promise<Video[]> {
   return [];
 }
 
+const FETCH_TIMEOUT_MS = 12000;
+
 async function fetchVideos(limitCount: number): Promise<Video[]> {
   const [local, fromApi] = await Promise.all([
     fetchLocalVideos(),
     (async (): Promise<Video[]> => {
       try {
-        const res = await fetch(`/api/videos?limit=${limitCount}`);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+        const res = await fetch(`/api/videos?limit=${limitCount}`, {
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
         if (res.ok) {
           const data = await res.json();
           const list = data.videos || [];
           return list.map(parseVideo);
         }
       } catch {
-        /* API failed, fall through to Firestore */
+        /* API failed or timeout, fall through to Firestore */
       }
       return getVideosFromFirestore(limitCount);
     })(),

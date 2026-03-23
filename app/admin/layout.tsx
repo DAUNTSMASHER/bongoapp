@@ -12,7 +12,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     pathname.startsWith("/admin/stats") ||
     pathname.startsWith("/admin/stories") ||
     pathname.startsWith("/admin/videos") ||
-    pathname.startsWith("/admin/hot-chobi");
+    pathname.startsWith("/admin/hot-chobi") ||
+    pathname.startsWith("/admin/marketing");
 
   // Login: no guard, standalone page
   if (isLogin) {

@@ -34,6 +34,9 @@ export async function getVideosFromFirestore(limitCount = 100): Promise<Video[]>
       sourceSite: d.sourceSite,
       status: d.status === "hidden" ? "hidden" : "active",
       createdAt,
+      duration: d.duration,
+      viewCount: typeof d.viewCount === "number" ? d.viewCount : undefined,
+      resolution: d.resolution,
     });
   });
   const active = videos.filter((v) => v.status === "active");
@@ -64,5 +67,8 @@ export async function getVideoByIdFromFirestore(id: string): Promise<Video | nul
     sourceSite: d.sourceSite,
     status: d.status === "hidden" ? "hidden" : "active",
     createdAt,
+    duration: d.duration,
+    viewCount: typeof d.viewCount === "number" ? d.viewCount : undefined,
+    resolution: d.resolution,
   };
 }

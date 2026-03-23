@@ -1,6 +1,6 @@
 /**
  * GET /api/videos
- * Returns active videos from Firestore (server-side).
+ * Returns active videos from Firestore only.
  * Query: ?limit=100
  */
 
@@ -39,7 +39,6 @@ export async function GET(req: Request) {
     const limitCount = Math.min(parseInt(searchParams.get("limit") || "100", 10) || 100, 200);
 
     const firestore = initFirestore();
-
     let snap;
     try {
       snap = await firestore
@@ -48,7 +47,6 @@ export async function GET(req: Request) {
         .limit(limitCount)
         .get();
     } catch {
-      // Fallback: fetch without orderBy if index missing or createdAt absent
       snap = await firestore.collection("videos").limit(limitCount).get();
     }
 

@@ -19,6 +19,9 @@ const VIDEO_DATA = (v: CrawledVideo) => ({
   language: "bn",
   sourceSite: v.sourceSite || "banglachotikahinii",
   status: "active",
+  duration: v.duration ?? null,
+  viewCount: v.viewCount ?? null,
+  resolution: v.resolution ?? null,
   updatedAt: FieldValue.serverTimestamp(),
 });
 

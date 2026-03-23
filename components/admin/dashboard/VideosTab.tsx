@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AdminCard } from "../AdminCard";
 import { AdminFormField } from "../AdminFormField";
 import { adminFetch } from "@/lib/adminApi";
@@ -24,6 +24,13 @@ interface SearchVideo {
   sourceSite: string;
 }
 
+const BCK_PRESETS = [
+  { label: "Latest", url: "https://www.banglachotikahinii.com/videos/latest-updates/" },
+  { label: "Most Viewed", url: "https://www.banglachotikahinii.com/videos/most-popular/" },
+  { label: "Top Rated", url: "https://www.banglachotikahinii.com/videos/top-rated/" },
+  { label: "Main Videos", url: "https://www.banglachotikahinii.com/videos/" },
+] as const;
+
 export function VideosTab() {
   const [url, setUrl] = useState("https://www.banglachotikahinii.com/videos/latest-updates/");
   const [videoBatchSize, setVideoBatchSize] = useState(100);
@@ -31,6 +38,13 @@ export function VideosTab() {
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoResult, setVideoResult] = useState<VideoCrawlResult | null>(null);
   const [videoError, setVideoError] = useState<string | null>(null);
+  const [crawlAllPresets, setCrawlAllPresets] = useState(false);
+  const [crawlLogs, setCrawlLogs] = useState<{ ts: Date; msg: string }[]>([]);
+  const [crawlProgress, setCrawlProgress] = useState({ current: 0, total: 1 });
+  const crawlLogEndRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    crawlLogEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [crawlLogs]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchLoading, setSearchLoading] = useState(false);
@@ -74,21 +88,85 @@ export function VideosTab() {
     e.preventDefault();
     setVideoError(null);
     setVideoResult(null);
-    if (!url.trim()) return;
+    setCrawlLogs([]);
+    setCrawlProgress({ current: 0, total: 1 });
+    const urlsToCrawl = crawlAllPresets ? BCK_PRESETS.map((p) => p.url) : [url.trim()];
+    if (urlsToCrawl.every((u) => !u)) return;
     setVideoLoading(true);
+    const payload =
+      urlsToCrawl.length > 1
+        ? {
+            urls: urlsToCrawl,
+            maxVideos: videoBatchSize,
+            batchSize: videoBatchSize,
+            usePuppeteer: videoUsePuppeteer,
+            stream: true,
+          }
+        : {
+            url: urlsToCrawl[0],
+            maxVideos: videoBatchSize,
+            batchSize: videoBatchSize,
+            usePuppeteer: videoUsePuppeteer,
+            stream: true,
+          };
     try {
-      const { ok, data, error } = await adminFetch("/api/admin/crawl-videos", {
+      const res = await fetch("/api/admin/crawl-videos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          url: url.trim(),
-          maxVideos: videoBatchSize,
-          batchSize: videoBatchSize,
-          usePuppeteer: videoUsePuppeteer,
-        }),
+        credentials: "same-origin",
+        body: JSON.stringify(payload),
       });
-      if (!ok) throw new Error(error || (data.error as string) || "Request failed");
-      setVideoResult(data as unknown as VideoCrawlResult);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data.error as string) || `Request failed (${res.status})`);
+      }
+      const reader = res.body?.getReader();
+      if (!reader) throw new Error("No response body");
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          try {
+            const ev = JSON.parse(line) as {
+              type?: string;
+              message?: string;
+              current?: number;
+              total?: number;
+              extracted?: number;
+              inserted?: number;
+              skipped?: number;
+              updated?: number;
+              url?: string;
+            };
+            if (ev.type === "progress" && ev.current != null && ev.total != null) {
+              setCrawlProgress({ current: ev.current, total: Math.max(ev.total, 1) });
+            }
+            if (ev.message) {
+              setCrawlLogs((prev) => [...prev.slice(-99), { ts: new Date(), msg: ev.message! }]);
+            }
+            if (ev.type === "done") {
+              setVideoResult({
+                extracted: ev.extracted ?? 0,
+                inserted: ev.inserted ?? 0,
+                skipped: ev.skipped ?? 0,
+                updated: ev.updated ?? 0,
+                message: ev.message ?? "Done",
+              });
+            }
+            if (ev.type === "error") {
+              setVideoError(ev.message ?? "Crawl failed");
+            }
+          } catch {
+            // skip invalid JSON lines
+          }
+        }
+      }
     } catch (err) {
       setVideoError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -140,21 +218,48 @@ export function VideosTab() {
   return (
     <div className="space-y-8">
       <AdminCard
-        title="Crawl Videos"
-        description="Fetch videos from a listing URL. Existing videos are updated (no skip). Puppeteer needed for JS-rendered pages."
+        title="Crawl Videos (BanglaChotiKahinii-style)"
+        description="Fetch videos from listing URLs. Saves to GitHub when GITHUB_TOKEN+GITHUB_REPO set (no Firestore quota). Otherwise saves to Firestore. On production uses fetch only; run locally for Puppeteer."
       >
         <form onSubmit={handleVideoSubmit} className="space-y-4">
-          <AdminFormField label="Video listing URL">
+          <AdminFormField label="Quick presets (BanglaChotiKahinii)">
+            <div className="flex flex-wrap gap-2">
+              {BCK_PRESETS.map((p) => (
+                <button
+                  key={p.url}
+                  type="button"
+                  onClick={() => setUrl(p.url)}
+                  className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
+                    url === p.url ? "bg-[var(--primary)] text-white" : "bg-white/10 text-white/80 hover:bg-white/20"
+                  }`}
+                  disabled={videoLoading}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </AdminFormField>
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-white/80">
+            <input
+              type="checkbox"
+              checked={crawlAllPresets}
+              onChange={(e) => setCrawlAllPresets(e.target.checked)}
+              disabled={videoLoading}
+              className="rounded border-white/30"
+            />
+            Crawl all 4 BCK sections (Latest + Most Viewed + Top Rated + Main)
+          </label>
+          <AdminFormField label="Video listing URL" hint="Or enter custom URL">
             <input
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com/videos"
+              placeholder="https://www.banglachotikahinii.com/videos/latest-updates/"
               className="w-full rounded-lg border border-white/20 bg-white/5 px-4 py-3 text-white placeholder-white/40 focus:border-[var(--primary)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]"
-              disabled={videoLoading}
+              disabled={videoLoading || crawlAllPresets}
             />
           </AdminFormField>
-          <AdminFormField label="Batch size (3–100)" hint="Number of videos per run">
+          <AdminFormField label="Batch size (3–100)" hint="Videos per URL (per section when Crawl all)">
             <input
               type="number"
               min={3}
@@ -186,6 +291,48 @@ export function VideosTab() {
             {videoLoading ? "Crawling…" : "Fetch & Save Videos"}
           </button>
         </form>
+
+        {/* Terminal-style progress and logs */}
+        {(videoLoading || crawlLogs.length > 0) && (
+          <div className="mt-4 overflow-hidden rounded-lg border border-white/10 bg-black/40">
+            <div className="border-b border-white/10 bg-white/5 px-3 py-2 text-xs font-mono text-white/70">
+              Crawl output
+            </div>
+            {videoLoading && (
+              <div className="border-b border-white/10 px-3 py-2">
+                <div className="mb-1 flex justify-between text-xs text-white/60">
+                  <span>
+                    {crawlProgress.current} / {crawlProgress.total}
+                  </span>
+                  <span>
+                    {crawlProgress.total > 0
+                      ? Math.round((crawlProgress.current / crawlProgress.total) * 100)
+                      : 0}
+                    %
+                  </span>
+                </div>
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full bg-[var(--primary)] transition-all duration-300"
+                    style={{
+                      width: crawlProgress.total > 0 ? `${(crawlProgress.current / crawlProgress.total) * 100}%` : "0%",
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            <div className="max-h-48 overflow-y-auto p-3 font-mono text-xs">
+              {crawlLogs.map((log, i) => (
+                <div key={i} className="text-white/80">
+                  <span className="text-white/40">{log.ts.toLocaleTimeString()} </span>
+                  {log.msg}
+                </div>
+              ))}
+              <div ref={crawlLogEndRef} />
+            </div>
+          </div>
+        )}
+
         {videoError && <p className="mt-4 text-sm text-red-400">{videoError}</p>}
         {videoResult && (
           <div className="mt-4 rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-green-300">

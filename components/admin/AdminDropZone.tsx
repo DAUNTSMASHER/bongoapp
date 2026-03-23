@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import { UploadIcon, ImageIcon } from "@/components/icons";
 
@@ -38,6 +38,12 @@ export function AdminDropZone({
   disabled = false,
 }: AdminDropZoneProps) {
   const [drag, setDrag] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const openFilePicker = useCallback(() => {
+    if (disabled || uploading) return;
+    fileInputRef.current?.click();
+  }, [disabled, uploading]);
 
   const isValidFile = (f: File) =>
     f.type.startsWith("image/") || (accept.includes("video") && f.type.startsWith("video/"));
@@ -81,11 +87,13 @@ export function AdminDropZone({
         } ${disabled ? "pointer-events-none opacity-60" : ""}`}
       >
         <input
+          ref={fileInputRef}
           type="file"
           accept={accept}
           onChange={handleInputChange}
           className="absolute inset-0 cursor-pointer opacity-0"
           disabled={disabled || uploading}
+          aria-label="Choose image from computer"
         />
         {hasPreview ? (
           <div className={`relative ${ASPECT[aspectRatio]} max-h-64 w-full`}>
@@ -95,7 +103,7 @@ export function AdminDropZone({
               alt="Preview"
               className="h-full w-full object-cover"
             />
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/60 opacity-0 transition-opacity hover:opacity-100">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60 opacity-0 transition-opacity hover:opacity-100">
               {selectedFile && !value && (
                 <button
                   type="button"
@@ -113,7 +121,18 @@ export function AdminDropZone({
               {value && (
                 <p className="text-sm text-white/90">Image ready</p>
               )}
-              <p className="mt-2 text-xs text-white/60">Drop new image to replace</p>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  openFilePicker();
+                }}
+                disabled={uploading}
+                className="rounded-lg border border-white/30 bg-white/10 px-4 py-2 text-sm text-white hover:bg-white/20"
+              >
+                Choose different from PC
+              </button>
             </div>
           </div>
         ) : (
@@ -122,8 +141,20 @@ export function AdminDropZone({
               <ImageIcon size={28} className="text-white/60" />
             </div>
             <p className="text-center text-sm text-white/70">{placeholder}</p>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openFilePicker();
+              }}
+              disabled={disabled || uploading}
+              className="flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-sm font-medium text-white/90 transition-colors hover:bg-white/10 hover:border-[var(--primary)]"
+            >
+              <UploadIcon size={18} />
+              Choose from PC
+            </button>
             <div className="flex items-center gap-2 text-xs text-white/50">
-              <UploadIcon size={14} />
               <span>{accept.includes("video") ? "MP4, WebM up to 100MB" : "JPG, PNG, WebP up to 5MB"}</span>
             </div>
           </div>
