@@ -6,7 +6,7 @@ import { SEO_KEYWORDS } from "@/lib/seoKeywords";
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://bongochoti.com";
 
 /** ISR: revalidate every 60s to reduce TTFB (document latency). Data is cached in unstable_cache. */
-export const revalidate = 60;
+export const revalidate = 59;
 
 export const metadata: Metadata = {
   title: "Bangla Choti | বাংলা চটি গল্প ও Sex Video",

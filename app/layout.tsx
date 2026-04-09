@@ -64,7 +64,8 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/logo.png", sizes: "48x48", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" }, // Standard favicon
+      { url: "/logo.png", sizes: "32x32", type: "image/png" },
       { url: "/logo.png", sizes: "96x96", type: "image/png" },
       { url: "/logo.png", sizes: "192x192", type: "image/png" },
     ],
@@ -77,6 +78,7 @@ export const metadata: Metadata = {
     : undefined,
   other: {
     "ff0cd477e93924b16d229267d474a387e72ca672": "ff0cd477e93924b16d229267d474a387e72ca672",
+    "google-adsense-account": "ca-pub-4240777604532146",
   },
 };
 
@@ -116,6 +118,12 @@ export default function RootLayout({
           </Script>
         </>
       )}
+      <Script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4240777604532146"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
+      />
       {/* Cardinal Tangible pop ad — 10+ placements for maximum earning */}
       <Script
         id="cardinal-pop-ad"
