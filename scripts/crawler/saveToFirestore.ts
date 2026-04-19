@@ -6,7 +6,7 @@
  * Plug in your own credentials via GOOGLE_APPLICATION_CREDENTIALS or serviceAccountPath.
  */
 
-import { initializeApp, cert, getApps, type ServiceAccount } from "firebase-admin/app";
+import { getFirebaseAdmin, getDb } from "@/lib/firebaseAdmin";
 import {
   getFirestore,
   FieldValue,
@@ -22,65 +22,11 @@ export interface StoredVideo {
   createdAt: FieldValueType;
 }
 
-let db: Firestore | null = null;
-
-const FIREBASE_CREDENTIALS_ERROR =
-  "Firebase Admin credentials not configured. On Vercel: add FIREBASE_SERVICE_ACCOUNT env var with your service account JSON (as single-line string). Locally: add service-account.json or set GOOGLE_APPLICATION_CREDENTIALS.";
-
 /**
- * Initialize Firestore with service account.
- * - FIREBASE_SERVICE_ACCOUNT: JSON string (for Vercel/serverless)
- * - GOOGLE_APPLICATION_CREDENTIALS: path to JSON file
- * - Pass serviceAccountPath (path to JSON file), or
- * - Pass an object matching ServiceAccount
+ * Initialize Firestore using the centralized Firebase Admin logic.
  */
-export function initFirestore(
-  serviceAccountPathOrObject?: string | ServiceAccount
-): Firestore {
-  if (db) return db;
-  if (getApps().length > 0) {
-    db = getFirestore();
-    return db;
-  }
-  try {
-    let credential;
-    if (typeof serviceAccountPathOrObject === "object") {
-      credential = cert(serviceAccountPathOrObject);
-    } else if (serviceAccountPathOrObject) {
-      credential = cert(serviceAccountPathOrObject);
-    } else if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-      try {
-        credential = cert(
-          JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT) as ServiceAccount
-        );
-      } catch (parseErr) {
-        throw new Error(
-          "FIREBASE_SERVICE_ACCOUNT must be valid JSON. Paste your service account JSON as a single-line string."
-        );
-      }
-    } else {
-      const path =
-        process.env.GOOGLE_APPLICATION_CREDENTIALS || "./service-account.json";
-      credential = cert(path);
-    }
-    initializeApp({ credential });
-  } catch (err) {
-    if (getApps().length === 0) {
-      const msg = err instanceof Error ? err.message : String(err);
-      const isCredsErr =
-        msg.includes("credentials") ||
-        msg.includes("FIREBASE") ||
-        msg.includes("ENOENT") ||
-        msg.includes("JSON") ||
-        msg.includes("service account");
-      throw new Error(
-        isCredsErr ? `${FIREBASE_CREDENTIALS_ERROR} ${msg}` : msg
-      );
-    }
-    // App was created by parallel call; reuse
-  }
-  db = getFirestore();
-  return db;
+export function initFirestore(_ignored?: any): Firestore {
+  return getDb();
 }
 
 /**

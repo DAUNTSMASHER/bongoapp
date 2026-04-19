@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getDb } from "@/lib/firebaseAdmin";
 
 /**
  * POST /api/admin/marketing-config
@@ -8,18 +9,11 @@ import { NextRequest, NextResponse } from "next/server";
  * Read the current config.
  */
 
-async function getFirestore() {
-  const admin = await import("firebase-admin");
-  if (!admin.apps.length) {
-    const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT || "{}");
-    admin.initializeApp({ credential: admin.credential.cert(sa) });
-  }
-  return admin.firestore();
-}
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const db = await getFirestore();
+    const db = getDb();
     const doc = await db.collection("config").doc("marketing").get();
     if (!doc.exists) {
       return NextResponse.json({ telegramBotToken: "", telegramChatId: "", autoPostEnabled: false });
@@ -39,7 +33,7 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const db = await getFirestore();
+    const db = getDb();
 
     await db.collection("config").doc("marketing").set(
       {

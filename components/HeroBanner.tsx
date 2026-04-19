@@ -21,7 +21,7 @@ export default function HeroBanner({ story }: HeroBannerProps) {
       aria-label="Featured story"
     >
       <Link
-        href={`/stories/${story.id}`}
+        href={`/stories/${story.id}/`}
         className="group block h-full min-h-[58.5vh] md:min-h-[55vh] lg:min-h-[60vh] xl:min-h-[65vh]"
       >
         {story.coverImageUrl && (

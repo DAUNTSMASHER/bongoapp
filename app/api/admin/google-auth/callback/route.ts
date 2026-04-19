@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getOAuth2Client } from "@/lib/googleAuth";
-import { db } from "@/lib/firebaseAdmin";
+import { getDb } from "@/lib/firebaseAdmin";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -16,6 +16,7 @@ export async function GET(request: Request) {
 
     if (tokens.refresh_token) {
       // Store in Firestore
+      const db = getDb();
       await db.collection("config").doc("marketing").set({
         googleRefreshToken: tokens.refresh_token,
         googleConnectedAt: new Date().toISOString(),

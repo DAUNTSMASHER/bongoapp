@@ -8,3 +8,4 @@ export { AddVideoTab } from "./AddVideoTab";
 export { AddImageTab } from "./AddImageTab";
 export { AutomationTab } from "./AutomationTab";
 export { MarketingTab } from "./MarketingTab";
+export { BotFarmTab } from "./BotFarmTab";

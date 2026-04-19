@@ -38,7 +38,7 @@ if (existsSync(envPath)) {
     if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
       val = val.slice(1, -1).replace(/\\(.)/g, "$1");
     }
-    if (key.startsWith("NEXT_PUBLIC_FIREBASE_") || key === "FIREBASE_SERVICE_ACCOUNT") {
+    if (key.startsWith("NEXT_PUBLIC_FIREBASE_") || key === "FIREBASE_SERVICE_ACCOUNT" || key === "ADSTERRA_API_KEY") {
       if (val) vars[key] = val;
     }
   }
@@ -53,12 +53,17 @@ console.log(`Pushing ${toAdd.length} variable(s) to Vercel...`);
 const targets = ["production"]; // Add "preview","development" if needed
 for (const [key, value] of toAdd) {
   for (const env of targets) {
+    let valueToSend = value;
+    if (key === "FIREBASE_SERVICE_ACCOUNT") {
+      console.log(`Encoding ${key} as Base64 for safety...`);
+      valueToSend = Buffer.from(value).toString("base64");
+    }
+
     console.log(`Adding ${key} to ${env}...`);
-    const args = ["vercel", "env", "add", key, env, "--value", value, "--force", "--yes"];
+    const args = ["vercel", "env", "add", key, env, "--value", `"${valueToSend}"`, "--force", "--yes"];
     const result = spawnSync("npx", args, {
       stdio: "inherit",
       shell: true,
-      maxBuffer: 10 * 1024 * 1024,
     });
     if (result.status !== 0) {
       console.error(`Failed to add ${key} to ${env}`);

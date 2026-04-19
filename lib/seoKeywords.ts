@@ -42,4 +42,13 @@ export const SEO_KEYWORDS = [
   "বাংলা চটি গল্প",
   "bangla choti golpo bangla",
   "bangla choti new",
+  "panu",
+  "panu video",
+  "choti book",
+  "choti library",
+  "bangla sex story bangla",
+  "bangla sex story book",
+  "real bangla choti",
+  "bangla choti official",
+  "bongochoti com",
 ];

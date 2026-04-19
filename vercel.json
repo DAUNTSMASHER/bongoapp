@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/cron/auto-distribute",
+      "path": "/api/cron/unified",
       "schedule": "0 8 * * *"
     }
   ]

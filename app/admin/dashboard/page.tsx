@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import AdminShell from "@/components/AdminShell";
 import ContentWrapper from "@/components/ContentWrapper";
 import {
   AddAdminSection,
@@ -11,9 +12,10 @@ import {
   ManagementTab,
   AutomationTab,
   MarketingTab,
+  BotFarmTab,
 } from "@/components/admin/dashboard";
 
-type TabId = "add-story" | "add-video" | "add-image" | "management" | "marketing" | "automation";
+type TabId = "add-story" | "add-video" | "add-image" | "management" | "marketing" | "automation" | "bot-farm";
 
 const TABS: { id: TabId; label: string; shortLabel: string }[] = [
   { id: "add-story", label: "Add Story", shortLabel: "Story" },
@@ -22,9 +24,20 @@ const TABS: { id: TabId; label: string; shortLabel: string }[] = [
   { id: "management", label: "Manage Content", shortLabel: "Manage" },
   { id: "marketing", label: "Marketing", shortLabel: "Marketing" },
   { id: "automation", label: "Automation", shortLabel: "Auto" },
+  { id: "bot-farm", label: "💎 Bot Farm", shortLabel: "Farm" },
 ];
 
 export default function AdminDashboardPage() {
+  return (
+    <AdminShell>
+      <Suspense fallback={<div className="p-10 text-white font-bangla">ড্যাশবোর্ড লোড হচ্ছে...</div>}>
+        <DashboardContent />
+      </Suspense>
+    </AdminShell>
+  );
+}
+
+function DashboardContent() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab") as TabId | null;
   const [activeTab, setActiveTab] = useState<TabId>("add-story");
@@ -41,6 +54,7 @@ export default function AdminDashboardPage() {
     if (activeTab === "management") return <ManagementTab />;
     if (activeTab === "marketing") return <MarketingTab />;
     if (activeTab === "automation") return <AutomationTab />;
+    if (activeTab === "bot-farm") return <BotFarmTab />;
     return <AddStoryTab />;
   }, [activeTab]);
 

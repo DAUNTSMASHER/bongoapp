@@ -1,0 +1,35 @@
+{
+  "targetUrl": "https://www.bongochoti.com/",
+  "instances": 7,
+  "adbPath": "D:\\LDPlayer\\LDPlayer9\\adb.exe",
+  "sessionMin": 300000, 
+  "sessionMax": 600000,
+  "pagesPerSession": 15,
+  "proxies": [
+    "ltmtrcmo:4ut2stq8lezy@9.142.219.45:6209",
+    "ltmtrcmo:4ut2stq8lezy@72.46.139.188:6748",
+    "ltmtrcmo:4ut2stq8lezy@9.142.10.241:5897",
+    "ltmtrcmo:4ut2stq8lezy@9.142.37.33:5204",
+    "ltmtrcmo:4ut2stq8lezy@72.1.154.133:8024",
+    "ltmtrcmo:4ut2stq8lezy@193.160.82.137:6109",
+    "ltmtrcmo:4ut2stq8lezy@45.56.180.198:8432",
+    "ltmtrcmo:4ut2stq8lezy@216.98.230.35:6488",
+    "ltmtrcmo:4ut2stq8lezy@45.56.137.162:9227",
+    "ltmtrcmo:4ut2stq8lezy@62.164.246.3:7728",
+    "ltmtrcmo:4ut2stq8lezy@216.98.249.39:7020",
+    "ltmtrcmo:4ut2stq8lezy@72.46.138.240:6466",
+    "ltmtrcmo:4ut2stq8lezy@192.46.203.18:5984",
+    "ltmtrcmo:4ut2stq8lezy@216.98.255.233:6855",
+    "ltmtrcmo:4ut2stq8lezy@192.53.66.68:6174",
+    "ltmtrcmo:4ut2stq8lezy@104.243.210.104:5752",
+    "ltmtrcmo:4ut2stq8lezy@138.226.64.103:7794",
+    "ltmtrcmo:4ut2stq8lezy@192.46.188.26:5685",
+    "ltmtrcmo:4ut2stq8lezy@216.170.122.31:6069",
+    "ltmtrcmo:4ut2stq8lezy@62.164.242.97:8674"
+  ],
+  "telegram": {
+    "enabled": false,
+    "token": "YOUR_TELEGRAM_BOT_TOKEN",
+    "chatId": "YOUR_CHAT_ID"
+  }
+}

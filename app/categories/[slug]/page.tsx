@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import CategoryPageClient from "@/components/CategoryPageClient";
+import CategorySchema from "@/components/CategorySchema";
 import { CATEGORIES } from "@/lib/stories";
 import { SEO_KEYWORDS } from "@/lib/seoKeywords";
 
@@ -47,5 +48,10 @@ export default async function CategoryPage({
   const category = CATEGORIES.find((c) => c.slug === slug);
   if (!category) notFound();
 
-  return <CategoryPageClient slug={slug} label={category.label} />;
+  return (
+    <>
+      <CategorySchema label={category.label} slug={slug} siteUrl={siteUrl} />
+      <CategoryPageClient slug={slug} label={category.label} />
+    </>
+  );
 }

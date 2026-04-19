@@ -143,7 +143,7 @@ export default function StoryReader({ story }: StoryReaderProps) {
             <BackIcon size={22} strokeWidth={2} />
           </Link>
           <Link
-            href="/categories"
+            href="/categories/"
             className={`flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors ${barIcon}`}
             aria-label="Categories"
           >
@@ -153,7 +153,7 @@ export default function StoryReader({ story }: StoryReaderProps) {
             {headline}
           </span>
           <Link
-            href="/library"
+            href="/library/"
             className={`flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors ${barIcon}`}
             aria-label="Library"
           >
@@ -179,7 +179,7 @@ export default function StoryReader({ story }: StoryReaderProps) {
         <header className="mb-6">
           <h1 className={`font-bangla text-2xl font-bold ${headlineCls}`}>{headline}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-2">
-            <ShareButtons title={headline} path={`/stories/${story.id}`} variant={isLight ? "light" : "dark"} />
+            <ShareButtons title={headline} path={`/stories/${story.id}/`} variant={isLight ? "light" : "dark"} />
             <button
               type="button"
               onClick={() => setFbPageModalOpen(true)}
@@ -232,23 +232,28 @@ export default function StoryReader({ story }: StoryReaderProps) {
                 className="whitespace-pre-wrap leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: part.replace(/\n/g, "<br />") }}
               />
+              
+              {/* Intelligent Ad Insertion: Every 2 parts or specific milestones */}
               {index < parts.length - 1 && (
-                <div className="my-10 flex flex-col items-center gap-6">
-                  {index === 0 && parts.length > 2 && (
+                <div className="my-8 flex flex-col items-center gap-4">
+                  {(index + 1) % 2 === 0 ? (
+                    <BannerAd placement={`story-mid-${index}`} variant="rectangle" />
+                  ) : index === 0 ? (
                     <>
                       <PopAdPlacement placement="story-mid" />
                       <div className="w-full max-w-sm">
                         <SmartLinkAd
                           placement="story-mid"
                           variant="cta-large"
-                          label="চালিয়ে পড়ুন"
+                          label="চালিয়ে পড়ুন (Continue)"
                         />
                       </div>
                     </>
-                  )}
-                  {story.coverImageUrl && index < 3 && (
+                  ) : null}
+
+                  {story.coverImageUrl && index === 1 && (
                     <div className={`relative flex w-full items-center justify-center overflow-hidden rounded-xl border bg-black/10 ${isLight ? "border-gray-200" : "border-white/10"}`}>
-                      <div className="relative h-[100dvh] w-full min-h-[400px]">
+                      <div className="relative h-[60dvh] w-full min-h-[300px]">
                         <Image
                           src={story.coverImageUrl}
                           alt={headline}
@@ -266,12 +271,23 @@ export default function StoryReader({ story }: StoryReaderProps) {
           <div data-read-end aria-hidden className="h-1" />
         </div>
 
+        {/* Native Ad Section: High CTR "Recommended Content" */}
+        <div className="mt-12 border-t border-dashed border-white/10 pt-8">
+           <h3 className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40 text-center">Recommended for you</h3>
+           <BannerAd placement="story-footer-native" variant="native" />
+        </div>
+
         {/* CTA: looks like natural "next story" button */}
-        <div className="mt-8">
+        <div className="mt-8 flex flex-col gap-4">
           <SmartLinkAd
             placement="story-end-cta"
             variant="cta-large"
-            label="পরবর্তী গল্প পড়ুন"
+            label="পরবর্তী গল্প পড়ুন (Next Story)"
+          />
+          <SmartLinkAd
+            placement="story-end-secondary"
+            variant="primary"
+            label="আরও রোমান্টিক গল্প দেখুন"
           />
         </div>
 

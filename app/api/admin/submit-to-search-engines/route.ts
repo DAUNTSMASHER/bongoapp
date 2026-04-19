@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+export const dynamic = "force-dynamic";
 
 /**
  * POST /api/admin/submit-to-search-engines
@@ -11,58 +12,49 @@ import { NextRequest, NextResponse } from "next/server";
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.bongochoti.com";
 const INDEXNOW_KEY = "b3c7a9f2e1d4a8b6c5f0e3d7a2b8c4f1";
 
+import { getFirebaseAdmin, getDb } from "@/lib/firebaseAdmin";
+
 async function getGoogleAuth() {
-  const { google } = await import("googleapis");
-  const { db } = await import("@/lib/firebaseAdmin");
+  const { google } = require("googleapis");
+  const db = getDb();
 
   // 1. Try OAuth2 Refresh Token from Firestore
   const configDoc = await db.collection("config").doc("marketing").get();
   const config = configDoc.data();
 
   if (config?.googleRefreshToken) {
-    const { getOAuth2Client } = await import("@/lib/googleAuth");
+    const { getOAuth2Client } = require("@/lib/googleAuth");
     const oauth2Client = getOAuth2Client();
     oauth2Client.setCredentials({ refresh_token: config.googleRefreshToken });
     return { google, auth: oauth2Client };
   }
 
   // 2. Fallback to Service Account
-  let sa: any = {};
-  try {
-    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-      sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-    }
-  } catch (e) {
-    console.warn("Failed to parse FIREBASE_SERVICE_ACCOUNT env var, falling back to file...");
-  }
-
-  if (!sa.client_email || !sa.private_key) {
+  const saVar = process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (saVar) {
     try {
-      const fs = await import("fs/promises");
-      const path = await import("path");
-      const filePath = path.join(process.cwd(), "service-account.json");
-      const fileData = await fs.readFile(filePath, "utf-8");
-      sa = JSON.parse(fileData);
+      const sa = JSON.parse(saVar.replace(/\\n/g, "\n"));
+      if (sa.client_email && sa.private_key) {
+        const auth = new google.auth.GoogleAuth({
+          credentials: {
+            client_email: sa.client_email,
+            private_key: sa.private_key.replace(/\\n/g, "\n"),
+          },
+          scopes: ["https://www.googleapis.com/auth/webmasters"],
+        });
+        return { google, auth };
+      }
     } catch (e) {
-      console.error("Failed to read service-account.json file:", e);
+      console.error("[Search Submission] Failed to parse Service Account:", e);
     }
-  }
-
-  if (sa.client_email && sa.private_key) {
-    const auth = new google.auth.GoogleAuth({
-      credentials: {
-        client_email: sa.client_email,
-        private_key: sa.private_key.replace(/\\n/g, "\n"),
-      },
-      scopes: ["https://www.googleapis.com/auth/webmasters"],
-    });
-    return { google, auth };
   }
 
   throw new Error("Google Search Console credentials missing (OAuth or Service Account)");
 }
 
 export async function POST(req: NextRequest) {
+  const fs = require("fs/promises");
+  const path = require("path");
   const body = await req.json().catch(() => ({}));
   const action = body.action || "sitemap";
   const results: { engine: string; status: string; ok: boolean; detail?: string }[] = [];

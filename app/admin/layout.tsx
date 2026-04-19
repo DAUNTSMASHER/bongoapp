@@ -1,34 +1,42 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { Suspense } from "react";
 import AdminGuard from "@/components/AdminGuard";
 import AdminErrorBoundary from "@/components/AdminErrorBoundary";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname() ?? "";
   const isLogin = pathname.startsWith("/admin/login");
-  const isProtected =
-    pathname.startsWith("/admin/dashboard") ||
-    pathname.startsWith("/admin/stats") ||
-    pathname.startsWith("/admin/stories") ||
-    pathname.startsWith("/admin/videos") ||
-    pathname.startsWith("/admin/hot-chobi") ||
-    pathname.startsWith("/admin/marketing");
+  const isProtected = pathname.startsWith("/admin") && !isLogin;
 
-  // Login: no guard, standalone page
   if (isLogin) {
-    return <AdminErrorBoundary>{children}</AdminErrorBoundary>;
-  }
-
-  // Dashboard, Edit Stories, Edit Videos: protected by guard
-  if (isProtected) {
     return (
       <AdminErrorBoundary>
-        <AdminGuard>{children}</AdminGuard>
+        <Suspense fallback={<div className="p-8 text-charcoal">Loading...</div>}>
+          {children}
+        </Suspense>
       </AdminErrorBoundary>
     );
   }
 
-  // /admin: redirect page, no guard
-  return <AdminErrorBoundary>{children}</AdminErrorBoundary>;
+  if (isProtected) {
+    return (
+      <AdminErrorBoundary>
+        <AdminGuard>
+          <Suspense fallback={<div className="p-8 text-charcoal">Syncing admin context...</div>}>
+            {children}
+          </Suspense>
+        </AdminGuard>
+      </AdminErrorBoundary>
+    );
+  }
+
+  return (
+    <AdminErrorBoundary>
+      <Suspense fallback={<div className="p-8 text-charcoal">Loading...</div>}>
+        {children}
+      </Suspense>
+    </AdminErrorBoundary>
+  );
 }

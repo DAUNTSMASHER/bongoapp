@@ -49,7 +49,7 @@ export function AdPopupProvider({ children }: { children: React.ReactNode }) {
     }
     recordAdShown();
     loadAllAdScripts();
-    loadInvokeAd();
+    loadInvokeAd(INVOKE_AD.key);
     setPending({ href, openInNewTab });
     setCountdown(AD_VIEW_SECONDS);
     setCanContinue(false);
@@ -105,9 +105,9 @@ export function AdPopupProvider({ children }: { children: React.ReactNode }) {
           aria-label="Advertisement"
         >
           <div className="mb-4 flex flex-col items-center gap-2">
-            <div className="h-2 w-48 overflow-hidden rounded-full bg-white/20">
+            <div className="h-2 w-48 overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full bg-[var(--primary)] transition-all duration-1000"
+                className="h-full bg-[#E50914] transition-all duration-1000"
                 style={{ width: `${((AD_VIEW_SECONDS - countdown) / AD_VIEW_SECONDS) * 100}%` }}
               />
             </div>
@@ -128,7 +128,7 @@ export function AdPopupProvider({ children }: { children: React.ReactNode }) {
             type="button"
             onClick={handleDismiss}
             disabled={countdown > 0}
-            className="rounded-lg bg-[var(--primary)] px-6 py-3 font-semibold text-white hover:bg-[var(--primary)]/90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="rounded-lg bg-[#E50914] px-6 py-3 font-semibold text-white hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {countdown > 0 ? `${countdown} সেকেন্ড অপেক্ষা করুন` : "এখনই যান"}
           </button>

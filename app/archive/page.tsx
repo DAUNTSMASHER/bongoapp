@@ -39,7 +39,7 @@ export default function ArchivePage() {
         {archiveMonths.map(({ slug, label }) => (
           <Link
             key={slug}
-            href={`/archive/${slug}`}
+            href={`/archive/${slug}/`}
             className="font-bangla block rounded-lg border border-white/10 bg-[#181818] px-4 py-2.5 text-base text-white transition-all hover:bg-white/10 md:px-5 md:py-3"
           >
             {label}

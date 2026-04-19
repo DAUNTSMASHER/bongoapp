@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@mendable/firecrawl-js": "^4.15.4",
-    "@vercel/analytics": "^2.0.0",
+    "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.3.1",
     "@vercel/speed-insights": "^2.0.0",
     "cheerio": "^1.0.0",

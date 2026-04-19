@@ -9,12 +9,12 @@ import { HomeIcon, FolderIcon, LibraryIcon, UserIcon, SearchIcon, CalendarIcon, 
 
 const navItems = [
   { href: "/", label: "হোম", Icon: HomeIcon },
-  { href: "/videos", label: "ভিডিও", Icon: PlayIcon },
-  { href: "/categories", label: "ক্যাটাগরি", Icon: FolderIcon },
-  { href: "/blog", label: "ব্লগ", Icon: FileTextIcon },
-  { href: "/archive", label: "আর্কাইভ", Icon: CalendarIcon },
-  { href: "/library", label: "লাইব্রেরি", Icon: LibraryIcon },
-  { href: "/profile", label: "প্রোফাইল", Icon: UserIcon },
+  { href: "/videos/", label: "ভিডিও", Icon: PlayIcon },
+  { href: "/categories/", label: "ক্যাটাগরি", Icon: FolderIcon },
+  { href: "/blog/", label: "ব্লগ", Icon: FileTextIcon },
+  { href: "/archive/", label: "আর্কাইভ", Icon: CalendarIcon },
+  { href: "/library/", label: "লাইব্রেরি", Icon: LibraryIcon },
+  { href: "/profile/", label: "প্রোফাইল", Icon: UserIcon },
 ];
 
 export default function MobileShell({
@@ -59,7 +59,7 @@ export default function MobileShell({
 
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Link
-            href="/search"
+            href="/search/"
             className="flex size-10 items-center justify-center rounded-full text-white/90 transition-colors hover:text-white"
             aria-label="Search"
           >

@@ -6,7 +6,7 @@
  */
 
 import { unstable_cache } from "next/cache";
-import { initFirestore } from "@/scripts/crawler/saveToFirestore";
+import { getDb } from "@/lib/firebaseAdmin";
 import { applyNameReplacementsToStory, type NameMappings } from "@/lib/nameReplacement";
 import type { Story } from "@/types/story";
 
@@ -42,8 +42,8 @@ function toStory(doc: { id: string; data: () => Record<string, unknown> }): Stor
 }
 
 async function getNameMappings(): Promise<NameMappings> {
-  const firestore = initFirestore();
-  const doc = await firestore.collection("config").doc("nameMappings").get();
+  const db = getDb();
+  const doc = await db.collection("config").doc("nameMappings").get();
   return (doc.exists && doc.data()?.mappings) || {};
 }
 
@@ -56,8 +56,8 @@ async function getPublishedStoriesUncached(options?: {
 }): Promise<Story[]> {
   const maxLimit = options?.forSitemap ? 10000 : 200;
   const limit = Math.min(options?.limit ?? 100, maxLimit);
-  const firestore = initFirestore();
-  const snap = await firestore
+  const db = getDb();
+  const snap = await db
     .collection("stories")
     .where("status", "==", "published")
     .orderBy("publishedAt", "desc")
@@ -104,10 +104,10 @@ function normalizeStoryId(id: string): string {
 
 async function getPublishedStoryByIdUncached(id: string): Promise<Story | null> {
   id = normalizeStoryId(id);
-  const firestore = initFirestore();
-  let docSnap = await firestore.collection("stories").doc(id).get();
+  const db = getDb();
+  let docSnap = await db.collection("stories").doc(id).get();
   if (!docSnap.exists) {
-    let bySlug = await firestore
+    let bySlug = await db
       .collection("stories")
       .where("slug", "==", id)
       .where("status", "==", "published")
@@ -116,7 +116,7 @@ async function getPublishedStoryByIdUncached(id: string): Promise<Story | null> 
     if (bySlug.empty && id.includes("-")) {
       const baseSlug = id.replace(/-[a-z0-9]+$/i, "");
       if (baseSlug && baseSlug !== id) {
-        bySlug = await firestore
+        bySlug = await db
           .collection("stories")
           .where("slug", "==", baseSlug)
           .where("status", "==", "published")

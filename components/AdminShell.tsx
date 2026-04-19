@@ -20,6 +20,7 @@ const NAV_GROUPS = [
     items: [
       { href: "/admin/dashboard/", label: "Dashboard", Icon: LayoutDashboardIcon },
       { href: "/admin/stats/", label: "Statistics", Icon: BarChartIcon },
+      { href: "/admin/revenue/", label: "Live Revenue", Icon: BarChartIcon },
       { href: "/admin/marketing/", label: "Marketing Suite", Icon: MegaphoneIcon },
       { href: "/admin/load-test/", label: "Load Testing", Icon: PlayIcon },
     ],

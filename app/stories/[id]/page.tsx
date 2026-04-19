@@ -23,7 +23,18 @@ export async function generateMetadata({
     } catch {
       // Server Firestore may fail; client will fetch
     }
-    if (!story) return { title: "Story" };
+    if (!story) {
+      const fallbackTitle = `Bangla Choti Story ${id} | bongochoti`;
+      return {
+        title: fallbackTitle,
+        description: "Read this exclusive bangla choti golpo on bongochoti.com — the best platform for bengali stories.",
+        openGraph: {
+          title: fallbackTitle,
+          url: `${siteUrl}/stories/${id}/`,
+          images: [`${siteUrl}/logo.png`],
+        }
+      };
+    }
 
     const rawTitle = story.seoTitle || story.headline || story.title;
     const title = rawTitle.includes("bangla choti") || rawTitle.includes("চটি")
@@ -49,14 +60,26 @@ export async function generateMetadata({
       alternates: { canonical: storyUrl },
       openGraph: {
         title,
-        description: description.slice(0, 155),
+        description: description.slice(0, 160),
         url: storyUrl,
         type: "article",
         publishedTime: story.publishedAt instanceof Date ? story.publishedAt.toISOString() : undefined,
         modifiedTime: story.updatedAt instanceof Date ? story.updatedAt.toISOString() : undefined,
-        images: [{ url: coverUrl, width: 512, height: 512, alt: rawTitle }],
+        images: [
+          {
+            url: coverUrl,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
       },
-      twitter: { card: "summary_large_image", title, description: description.slice(0, 155) },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description: description.slice(0, 160),
+        images: [coverUrl],
+      },
       robots: { index: true, follow: true },
     };
   } catch {

@@ -25,7 +25,7 @@ function formatReadingTime(lengthType: string): string {
 }
 
 export default function StoryCard({ story, index = 0, variant = "poster", onBeforeNavigate, matchHotChobi }: StoryCardProps) {
-  const href = `/stories/${story.id}`;
+  const href = `/stories/${story.id}/`;
   const handleClick = (e: React.MouseEvent) => {
     if (onBeforeNavigate) {
       e.preventDefault();
