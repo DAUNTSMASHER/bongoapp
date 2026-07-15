@@ -17,13 +17,15 @@ export function getFirebaseAdmin() {
 
   // Fallback to local service-account.json if env var is missing
   if (!saVar) {
-    const localSaPath = path.resolve(process.cwd(), "service-account.json");
-    if (fs.existsSync(localSaPath)) {
-      try {
-        sa = JSON.parse(fs.readFileSync(localSaPath, "utf8"));
-      } catch (e: any) {
-        console.error("[Firebase] Failed to parse local service-account.json:", e.message);
+    try {
+      if (typeof fs.existsSync === 'function') {
+        const localSaPath = path.resolve(process.cwd(), "service-account.json");
+        if (fs.existsSync(localSaPath)) {
+          sa = JSON.parse(fs.readFileSync(localSaPath, "utf8"));
+        }
       }
+    } catch (e: any) {
+      console.error("[Firebase] Failed to read/parse local service-account.json:", e.message);
     }
   }
 
@@ -72,15 +74,17 @@ export function getFirebaseAdmin() {
 
   // Final Fallback: If sa is still null after env check, try local file
   if (!sa || !sa.project_id) {
-    const localSaPath = path.resolve(process.cwd(), "service-account.json");
-    if (fs.existsSync(localSaPath)) {
-      try {
-        const fileContent = fs.readFileSync(localSaPath, "utf8");
-        sa = JSON.parse(fileContent);
-        console.log(`[Firebase] Loaded credentials from local file: ${localSaPath}`);
-      } catch (e: any) {
-        console.error("[Firebase] Failed to parse local service-account.json:", e.message);
+    try {
+      if (typeof fs.existsSync === 'function') {
+        const localSaPath = path.resolve(process.cwd(), "service-account.json");
+        if (fs.existsSync(localSaPath)) {
+          const fileContent = fs.readFileSync(localSaPath, "utf8");
+          sa = JSON.parse(fileContent);
+          console.log(`[Firebase] Loaded credentials from local file: ${localSaPath}`);
+        }
       }
+    } catch (e: any) {
+      console.error("[Firebase] Failed to parse local service-account.json:", e.message);
     }
   }
 

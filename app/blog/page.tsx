@@ -36,27 +36,88 @@ export default function BlogPage() {
       <p className="font-bangla mb-8 text-white/70">
         Guides, tips, and articles about bangla choti golpo, choti kahini, and bangla sex video.
       </p>
-      <div className="space-y-6">
-        {BLOG_POSTS.map((post) => (
-          <article
-            key={post.slug}
-            className="rounded-lg border border-white/10 bg-[#181818] p-5 transition-colors hover:border-white/20 md:p-6"
-          >
-            <Link href={`/blog/${post.slug}/`} className="block">
-              <h2 className="font-bangla text-lg font-semibold text-white hover:text-[var(--primary)] md:text-xl">
-                {post.title}
-              </h2>
-            </Link>
-            <p className="font-bangla mt-2 text-sm text-white/75 line-clamp-2">{post.description}</p>
-            <p className="mt-2 text-xs text-white/50">{post.publishedAt}</p>
-            <Link
-              href={`/blog/${post.slug}/`}
-              className="font-bangla mt-3 inline-block text-sm font-medium text-[var(--primary)] hover:underline"
-            >
-              পড়ুন →
-            </Link>
-          </article>
-        ))}
+      <div className="space-y-12">
+        {/* Topic Cluster: Relationship Psychology */}
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white md:text-2xl">Psychology & Attraction</h2>
+            <span className="rounded-full bg-[var(--primary)]/20 px-3 py-1 text-xs font-semibold text-[var(--primary)]">Topic Cluster</span>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {BLOG_POSTS.filter(p => p.slug.includes("psychology") || p.slug.includes("attraction")).map((post) => (
+              <article
+                key={post.slug}
+                className="group relative flex flex-col overflow-hidden rounded-xl border border-white/10 bg-[#181818] transition-all hover:border-[var(--primary)]/50 hover:bg-[#202020]"
+              >
+                <Link href={`/blog/${post.slug}/`} className="block aspect-video w-full overflow-hidden">
+                  <img
+                    src={post.coverImage}
+                    alt={post.title}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                </Link>
+                <div className="flex flex-1 flex-col p-5 md:p-6">
+                  <Link href={`/blog/${post.slug}/`} className="block">
+                    <h3 className="font-bangla text-lg font-semibold text-white group-hover:text-[var(--primary)] md:text-xl">
+                      {post.title}
+                    </h3>
+                  </Link>
+                  <p className="font-bangla mt-2 text-sm text-white/70 line-clamp-2">{post.description}</p>
+                  <div className="mt-auto pt-4 flex items-center justify-between">
+                     <span className="text-xs text-white/40">{post.publishedAt}</span>
+                     <Link href={`/blog/${post.slug}/`} className="text-sm font-bold text-[var(--primary)]">Read More</Link>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* Viral / Story Content */}
+        <section>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-white md:text-2xl">Viral Stories & Confessions</h2>
+            <span className="rounded-full bg-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-400">Emotional</span>
+          </div>
+          <div className="space-y-4">
+            {BLOG_POSTS.filter(p => p.slug.includes("confessions") || p.slug.includes("story")).map((post) => (
+              <article
+                key={post.slug}
+                className="flex items-center gap-4 rounded-xl border border-white/10 bg-[#181818] p-4 transition-colors hover:bg-[#202020]"
+              >
+                <div className="hidden size-16 shrink-0 items-center justify-center rounded-lg bg-white/5 md:flex">
+                  <span className="text-2xl">📝</span>
+                </div>
+                <div className="flex-1">
+                  <Link href={`/blog/${post.slug}/`}>
+                    <h3 className="font-bangla text-lg font-medium text-white hover:text-[var(--primary)]">
+                      {post.title}
+                    </h3>
+                  </Link>
+                  <p className="font-bangla text-xs text-white/60 line-clamp-1">{post.description}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* Other Guides */}
+        <section>
+          <h2 className="mb-4 text-xl font-bold text-white md:text-2xl">Bangla Choti Guides</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {BLOG_POSTS.filter(p => !p.slug.includes("psychology") && !p.slug.includes("attraction") && !p.slug.includes("confessions")).map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}/`} className="group flex flex-col overflow-hidden rounded-lg border border-white/5 bg-[#121212] transition-all hover:bg-white/5">
+                <div className="aspect-[21/9] w-full overflow-hidden">
+                  <img src={post.coverImage} alt={post.title} className="h-full w-full object-cover grayscale transition-all group-hover:grayscale-0" />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-sm font-semibold text-white group-hover:text-[var(--primary)]">{post.title}</h3>
+                  <p className="mt-1 text-xs text-white/40 line-clamp-2">{post.description}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       </div>
       <div className="mt-10 rounded-lg border border-white/10 p-6">
         <h2 className="font-bangla text-lg font-bold text-white">দ্রুত লিংক</h2>

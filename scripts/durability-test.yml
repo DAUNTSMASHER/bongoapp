@@ -1,0 +1,34 @@
+config:
+  target: "https://www.bongochoti.com"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+      name: Warm up
+    - duration: 120
+      arrivalRate: 5
+      rampTo: 20
+      name: Ramp up load
+    - duration: 300
+      arrivalRate: 20
+      name: Sustained load (Durability)
+  defaults:
+    headers:
+      User-Agent: "Artillery-Durability-Test"
+
+scenarios:
+  - name: "User browsing stories"
+    flow:
+      - get:
+          url: "/"
+      - think: 2
+      - get:
+          url: "/stories/"
+      - think: 3
+      - get:
+          url: "/videos/"
+      - think: 2
+      - get:
+          url: "/blog/"
+      - think: 5
+      - get:
+          url: "/blog/best-bangla-choti-categories/"

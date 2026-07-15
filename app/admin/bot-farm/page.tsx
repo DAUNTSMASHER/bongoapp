@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { AdminPageHeader } from "../../../components/admin/AdminPageHeader";
 
 interface BotStats {
   revenue: number;

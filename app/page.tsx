@@ -9,9 +9,9 @@ const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://bongochoti.com";
 export const revalidate = 59;
 
 export const metadata: Metadata = {
-  title: "Bangla Choti | বাংলা চটি গল্প ও Sex Video",
+  title: "Bangla Choti | বাংলা চটি গল্প, Sex Video ও ১৮+ কাহিনী | bongochoti",
   description:
-    "Bangla choti — Read ১৮০০+ bangla choti golpo, choti kahini online. ১০০০+ bangla sex video, bangla porn video. বাংলা চটি গল্প free. bongochoti.com.",
+    "Bangla choti — ১৮০০+ বাংলা চটি গল্প, choti kahini পড়ুন অনলাইনে। ১০০০+ bangla sex video, bangla porn video দেখুন। সেরা বাংলা চটি সাইট। bongochoti.com.",
   keywords: SEO_KEYWORDS,
   robots: { index: true, follow: true },
   alternates: { canonical: `${siteUrl}/` },
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bangla Choti | বাংলা চটি গল্প ও Sex Video | bongochoti",
-    description: "১৮০০+ bangla choti golpo, ১০০০+ bangla sex video. Free bangla choti.",
+    title: "Bangla Choti | বাংলা চটি গল্প, Sex Video ও ১৮+ কাহিনী | bongochoti",
+    description: "১৮০০+ বাংলা চটি গল্প, ১০০০+ bangla sex video পড়ুন এবং দেখুন একদম ফ্রিতে।",
   },
 };
 
@@ -49,7 +49,7 @@ export default async function HomePage() {
     <>
       {/* Server-rendered H1 for SEO tools (content also visible in client intro) */}
       <h1 className="sr-only">
-        Bangla Choti | বাংলা চটি গল্প ও Sex Video — bongochoti
+        Bangla Choti | বাংলা চটি গল্প, Sex Video ও ১৮+ কাহিনী — bongochoti
       </h1>
       <HomePageClient initialStories={stories} />
     </>

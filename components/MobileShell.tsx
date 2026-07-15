@@ -6,6 +6,9 @@ import { motion } from "framer-motion";
 import Logo from "./Logo";
 import { useAnalytics } from "@/lib/useAnalytics";
 import { HomeIcon, FolderIcon, LibraryIcon, UserIcon, SearchIcon, CalendarIcon, PlayIcon, FileTextIcon } from "./icons";
+import dynamic from "next/dynamic";
+
+const BannerAd = dynamic(() => import("./BannerAd"), { ssr: false });
 
 const navItems = [
   { href: "/", label: "হোম", Icon: HomeIcon },
@@ -69,6 +72,11 @@ export default function MobileShell({
       </motion.header>
 
       <main className="flex-1 overflow-auto pb-24 pt-0 md:pb-8">{children}</main>
+
+      {/* Mobile persistent banner above nav */}
+      <div className="fixed bottom-[56px] left-0 right-0 z-20 flex h-[50px] justify-center bg-black/80 md:hidden">
+         <BannerAd placement="mobile-sticky" variant="mobile" />
+      </div>
 
       {/* Mobile bottom nav - hidden on md+ */}
       <motion.nav

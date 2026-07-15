@@ -6,9 +6,9 @@ import { SEO_KEYWORDS } from "@/lib/seoKeywords";
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://bongochoti.com";
 
 export const metadata: Metadata = {
-  title: "Bangla Sex Video | বাংলা পর্ন ভিডিও — ১০০০+ ভিডিও | bongochoti",
+  title: "Bangla Sex Video | বাংলা পর্ন ভিডিও — ১০০০+ গরম ভিডিও | bongochoti",
   description:
-    "Bangla sex video ও porn video দেখুন। ১০০০+ বাংলা পর্ন ভিডিও, choti video। Watch bangla porn video, sex video online. bongochoti.com",
+    "Bangla sex video ও porn video অনলাইনে দেখুন। ১০০০+ বাংলা পর্ন ভিডিও, choti video। সেরা বাংলা সেক্স ভিডিও সাইট। bongochoti.com",
   keywords: SEO_KEYWORDS,
   alternates: { canonical: `${siteUrl}/videos/` },
   robots: { index: true, follow: true },
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [{ url: `${siteUrl}/logo.png`, width: 512, height: 512, alt: "Bangla Sex Video | bongochoti" }],
   },
-  twitter: { card: "summary_large_image", title: "Bangla Sex Video | bongochoti" },
+  twitter: { card: "summary_large_image", title: "Bangla Sex Video | বাংলা পর্ন ভিডিও — গরম ভিডিও | bongochoti" },
 };
 
 export default function VideosPage() {
@@ -27,7 +27,7 @@ export default function VideosPage() {
     <>
       {/* Server-rendered H1 for SEO tools */}
       <h1 className="sr-only">
-        Bangla Sex Video | বাংলা পর্ন ভিডিও — bangla porn video
+        Bangla Sex Video | বাংলা পর্ন ভিডিও — hot bangla porn video
       </h1>
       <Suspense fallback={<p className="font-bangla text-white/60 p-6">লোড হচ্ছে...</p>}>
         <VideosPageClient />

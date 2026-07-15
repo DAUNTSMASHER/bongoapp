@@ -53,3 +53,13 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# local runtime & proxies
+/_bot_backup/
+/tmp/
+build-log.txt
+scripts/bot_run_test.txt
+scripts/proxies.txt
+scripts/premium-proxies.json
+scripts/verification_results/
+scripts/revenue_stats*.json

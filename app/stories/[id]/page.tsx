@@ -37,11 +37,11 @@ export async function generateMetadata({
     }
 
     const rawTitle = story.seoTitle || story.headline || story.title;
-    const title = rawTitle.includes("bangla choti") || rawTitle.includes("চটি")
-      ? rawTitle
-      : `${rawTitle} | Bangla Choti`;
+    const title = rawTitle.includes("bangla choti") || rawTitle.includes("চটি") || rawTitle.includes("sex")
+      ? `${rawTitle} | bongochoti`
+      : `${rawTitle} | Bangla Choti & Sex Story`;
     const rawDesc = story.seoDescription || story.summary || (typeof story.body === "string" ? story.body : "");
-    const description = cleanDescription(stripHtml(rawDesc), 160);
+    const description = cleanDescription(stripHtml(rawDesc), 160) || `পড়ুন নতুন বাংলা চটি গল্প: ${rawTitle}। ১৮+ কাহিনী ও সেক্স স্টোরি অনলাইনে একদম ফ্রি।`;
 
     const storyKw = story.hashtags?.map((h) => h.replace(/^#/, "")) || story.tags || [];
     const allKeywords = [...new Set([...storyKw, ...SEO_KEYWORDS])];

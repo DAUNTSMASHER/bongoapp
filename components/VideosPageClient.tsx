@@ -8,6 +8,7 @@ import PopAdPlacement from "./PopAdPlacement";
 import VideosListClient from "./VideosListClient";
 import VideoDetailClient from "./VideoDetailClient";
 import PageStuckBanner from "./PageStuckBanner";
+import BannerAd from "./BannerAd";
 import { getVideosFromFirestore, getVideoByIdFromFirestore } from "@/lib/firestoreVideos";
 import { usePageStuck } from "@/hooks/usePageStuck";
 import type { Video } from "@/types/video";
@@ -154,6 +155,9 @@ export default function VideosPageClient() {
       <h1 className="font-bangla mb-6 text-2xl font-bold text-white md:text-3xl">
         বাংলা ভিডিও
       </h1>
+      <div className="mb-6 flex justify-center">
+        <BannerAd placement="videos-top" variant="leaderboard" />
+      </div>
       <PopAdPlacement placement="videos-page" />
 
       {loading ? (
@@ -162,7 +166,12 @@ export default function VideosPageClient() {
           <PageStuckBanner show={listStuck} onRefresh={() => window.location.reload()} />
         </div>
       ) : (
-        <VideosListClient videos={videos} />
+        <>
+          <VideosListClient videos={videos} />
+          <div className="mt-10 flex justify-center">
+            <BannerAd placement="videos-bottom" variant="mobile" />
+          </div>
+        </>
       )}
     </ContentWrapper>
   );

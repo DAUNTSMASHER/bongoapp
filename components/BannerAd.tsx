@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useRef } from "react";
 import { loadAllAdScripts, loadInvokeAd, BANNER_KEYS } from "@/lib/ads";
 

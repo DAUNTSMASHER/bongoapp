@@ -15,6 +15,7 @@ const PopAdPlacement = dynamic(() => import("./PopAdPlacement"), { ssr: false })
 const CategoryChips = dynamic(() => import("./CategoryChips"), { ssr: true });
 const TrendingRail = dynamic(() => import("./TrendingRail"), { ssr: true });
 const LatestList = dynamic(() => import("./LatestList"), { ssr: true });
+const BannerAd = dynamic(() => import("./BannerAd"), { ssr: false });
 
 interface HomePageClientProps {
   /** Server-fetched stories so initial HTML has content (SEO). */
@@ -112,6 +113,9 @@ export default function HomePageClient({ initialStories }: HomePageClientProps) 
 
   return (
     <div className="min-h-screen">
+      <div className="mb-2 flex justify-center py-2">
+        <BannerAd placement="home-top" variant="leaderboard" />
+      </div>
       {heroStory && <HeroBanner story={heroStory} />}
       <PopAdPlacement placement="home-hero" />
       <ContentWrapper className="pt-2 md:pt-4 lg:pt-6">
@@ -178,12 +182,21 @@ export default function HomePageClient({ initialStories }: HomePageClientProps) 
             {latest.length > 0 && <LatestList initialStories={latest} />}
           </div>
           <aside className="mt-6 lg:mt-0 lg:sticky lg:top-4 lg:self-start lg:pt-0">
+            <div className="mb-4">
+              <BannerAd placement="home-sidebar-rect" variant="rectangle" />
+            </div>
             <PopAdPlacement placement="home-sidebar" />
             <HomeStats storyCount={1000} videoCount={1000} />
             <div className="mt-4">
               <SmartLinkAd placement="home-sidebar" variant="primary" label="বিশেষ কন্টেন্ট দেখুন" />
             </div>
+            <div className="mt-6">
+               <BannerAd placement="home-sidebar-long" variant="sidebar" />
+            </div>
           </aside>
+        </div>
+        <div className="mt-12 mb-8 flex justify-center">
+          <BannerAd placement="home-bottom" variant="large" />
         </div>
       </ContentWrapper>
     </div>

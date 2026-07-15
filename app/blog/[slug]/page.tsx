@@ -5,6 +5,7 @@ import ContentWrapper from "@/components/ContentWrapper";
 import BackButton from "@/components/BackButton";
 import { getBlogPost, getAllBlogSlugs } from "@/lib/blogPosts";
 import { SEO_KEYWORDS } from "@/lib/seoKeywords";
+import BannerAd from "@/components/BannerAd";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://bongochoti.com";
 
@@ -33,9 +34,9 @@ export async function generateMetadata({
       url: `${siteUrl}/blog/${slug}/`,
       type: "article",
       publishedTime: post.publishedAt,
-      images: [{ url: `${siteUrl}/logo.png`, width: 512, height: 512, alt: post.title }],
+      images: [{ url: post.coverImage || `${siteUrl}/logo.png`, width: 1200, height: 630, alt: post.title }],
     },
-    twitter: { card: "summary_large_image", title: post.title, description: desc },
+    twitter: { card: "summary_large_image", title: post.title, description: desc, images: [post.coverImage || `${siteUrl}/logo.png`] },
   };
 }
 
@@ -69,11 +70,22 @@ export default async function BlogPostPage({
       </div>
       <article className="mx-auto max-w-3xl">
         <header className="mb-8">
+          {post.coverImage && (
+            <div className="mb-8 overflow-hidden rounded-2xl border border-white/10 shadow-2xl">
+              <img src={post.coverImage} alt={post.title} className="aspect-video w-full object-cover" />
+            </div>
+          )}
           <h1 className="font-bangla text-2xl font-bold text-white md:text-3xl">{post.title}</h1>
           <p className="mt-2 text-sm text-white/60">{post.publishedAt}</p>
         </header>
+        <div className="mb-8 flex justify-center">
+          <BannerAd placement="blog-post-top" variant="leaderboard" />
+        </div>
         <div className="prose prose-invert max-w-none font-bangla text-white/90 [&_a]:text-[var(--primary)] [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:opacity-90 [&_h2]:mt-8 [&_h2]:text-lg [&_h2]:font-bold [&_li]:mt-1 [&_p]:mt-4 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-6">
           {post.body}
+        </div>
+        <div className="mt-10 flex justify-center">
+          <BannerAd placement="blog-post-bottom" variant="large" />
         </div>
         <footer className="mt-12 flex flex-wrap gap-4 border-t border-white/10 pt-8">
           <Link href="/blog/" className="text-sm text-[var(--primary)] hover:underline">
