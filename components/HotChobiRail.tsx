@@ -42,6 +42,9 @@ export default function HotChobiRail() {
   const [showSavePrompt, setShowSavePrompt] = useState(false);
   const savePromptTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [isHovered, setIsHovered] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     fetch("/api/hot-chobi")
       .then((res) => res.json())
@@ -50,6 +53,31 @@ export default function HotChobiRail() {
       })
       .catch(() => {});
   }, []);
+
+  // Continuous auto-scroll effect
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || items.length === 0 || isHovered) return;
+
+    let animationId: number;
+    let lastTime = performance.now();
+    
+    const step = (currentTime: number) => {
+      // scroll speed logic: 1px per ~16ms (60fps)
+      if (currentTime - lastTime > 16) {
+        el.scrollLeft += 1;
+        // if scrolled past the first half, loop back seamlessly
+        if (el.scrollLeft >= el.scrollWidth / 2) {
+          el.scrollLeft -= el.scrollWidth / 2;
+        }
+        lastTime = currentTime;
+      }
+      animationId = requestAnimationFrame(step);
+    };
+    
+    animationId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animationId);
+  }, [items.length, isHovered]);
 
   const goPrev = useCallback(() => {
     setCurrentIndex((i) => (i <= 0 ? items.length - 1 : i - 1));
@@ -60,7 +88,9 @@ export default function HotChobiRail() {
   }, [items.length]);
 
   const openLightbox = (index: number) => {
-    setCurrentIndex(index);
+    // When opening lightbox from the doubled array, normalize the index
+    const normalizedIndex = index % items.length;
+    setCurrentIndex(normalizedIndex);
     setLightboxOpen(true);
     setShowSavePrompt(false);
     if (savePromptTimerRef.current) clearTimeout(savePromptTimerRef.current);
@@ -109,8 +139,12 @@ export default function HotChobiRail() {
     return () => { document.body.style.overflow = ""; };
   }, [lightboxOpen]);
 
-  const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.touches[0].clientX);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientX);
+    setIsHovered(true);
+  };
   const handleTouchEnd = (e: React.TouchEvent) => {
+    setIsHovered(false);
     if (touchStart === null) return;
     const delta = touchStart - e.changedTouches[0].clientX;
     if (Math.abs(delta) > 50) delta > 0 ? goNext() : goPrev();
@@ -120,6 +154,9 @@ export default function HotChobiRail() {
   const item = items[currentIndex];
 
   if (items.length === 0) return null;
+
+  // Duplicate items for infinite seamless scroll
+  const displayItems = [...items, ...items];
 
   return (
     <motion.section
@@ -135,15 +172,33 @@ export default function HotChobiRail() {
         </h2>
       </div>
       <div className="relative -mx-4 md:-mx-6 lg:-mx-8">
-        <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto overflow-y-visible pb-4 pt-2 scrollbar-hide scroll-smooth px-4 md:gap-4 md:px-6 lg:gap-5 lg:px-8">
-          {items.map((item, i) => {
+        <div 
+          ref={scrollRef}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          onTouchStart={() => setIsHovered(true)}
+          onTouchEnd={() => setIsHovered(false)}
+          className="flex gap-3 overflow-x-auto overflow-y-visible pb-4 pt-2 scrollbar-hide scroll-smooth px-4 md:gap-4 md:px-6 lg:gap-5 lg:px-8"
+        >
+          {displayItems.map((item, i) => {
             const href = item.link || "/stories/";
             return (
-              <Link key={i} href={href} className="shrink-0 snap-center md:h-[240px] md:w-[145px] lg:h-[260px] lg:w-[165px]">
+              <Link 
+                key={i} 
+                href={href} 
+                className="shrink-0 md:h-[240px] md:w-[145px] lg:h-[260px] lg:w-[165px]"
+                onClick={(e) => {
+                  // If no link, open lightbox
+                  if (!item.link) {
+                    e.preventDefault();
+                    openLightbox(i);
+                  }
+                }}
+              >
                 <motion.div
                   initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: 0.03 * i }}
+                  transition={{ duration: 0.35, delay: 0.03 * (i % items.length) }}
                   whileHover={{ scale: 1.04, zIndex: 30, y: -6 }}
                   className="group relative h-[220px] w-[130px] md:h-[240px] md:w-[145px] lg:h-[260px] lg:w-[165px]"
                 >
