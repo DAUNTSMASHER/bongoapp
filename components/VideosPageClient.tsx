@@ -12,6 +12,19 @@ import BannerAd from "./BannerAd";
 import { getVideosFromFirestore, getVideoByIdFromFirestore } from "@/lib/firestoreVideos";
 import { usePageStuck } from "@/hooks/usePageStuck";
 import type { Video } from "@/types/video";
+import externalVideosRaw from "@/lib/externalVideos.json";
+
+const mappedExternalVideos: Video[] = externalVideosRaw.map((v: any) => ({
+  id: v.id,
+  title: v.title,
+  thumbnailUrl: v.thumbnail,
+  outboundUrl: v.url,
+  tags: ["external"],
+  language: "bn",
+  status: "active",
+  createdAt: new Date(),
+  sourceSite: "banglachotikahinii.com"
+}));
 
 function parseVideo(v: Record<string, unknown>): Video {
   return {
@@ -84,7 +97,7 @@ export default function VideosPageClient() {
   const [loading, setLoading] = useState(true);
   const [watchLoading, setWatchLoading] = useState(!!watchId);
 
-  // Fetch list from Firestore
+  // Fetch list from Firestore + External
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -94,9 +107,9 @@ export default function VideosPageClient() {
         const sorted = fromFs.sort(
           (a, b) => (b.createdAt?.getTime() ?? 0) - (a.createdAt?.getTime() ?? 0)
         );
-        if (!cancelled) setVideos(sorted);
+        if (!cancelled) setVideos([...sorted, ...mappedExternalVideos]);
       } catch {
-        if (!cancelled) setVideos([]);
+        if (!cancelled) setVideos(mappedExternalVideos);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -118,10 +131,15 @@ export default function VideosPageClient() {
     setWatchLoading(true);
     const run = async () => {
       try {
-        const v = await fetchVideoById(watchId);
+        let v = await fetchVideoById(watchId);
+        if (!v) {
+          const ext = mappedExternalVideos.find((x) => x.id === watchId);
+          if (ext) v = ext;
+        }
         if (!cancelled) setWatchVideo(v ?? null);
       } catch {
-        if (!cancelled) setWatchVideo(null);
+        const ext = mappedExternalVideos.find((x) => x.id === watchId);
+        if (!cancelled) setWatchVideo(ext ?? null);
       } finally {
         if (!cancelled) setWatchLoading(false);
       }
