@@ -4,6 +4,8 @@ import { CATEGORIES } from "@/lib/stories";
 import { getArchiveMonths } from "@/lib/stories";
 import { getAllBlogSlugs } from "@/lib/blogPosts";
 
+export const dynamic = "force-static";
+
 /** Canonical production URL - must be the one that serves 200 (no redirect). Use your Search Console property URL. */
 const getSiteUrl = () =>
   process.env.NEXT_PUBLIC_APP_URL || "https://bongochoti.com";
@@ -55,12 +57,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let storyPages: MetadataRoute.Sitemap = [];
   try {
-    const stories = await getPublishedStories({ limit: 10000, forSitemap: true });
-    storyPages = stories.map((s) => {
-      const coverUrl = toAbsoluteImageUrl(base, s.coverImageUrl);
+    const { db } = await import("@/lib/firebase");
+    const { collection, getDocs, query, where, limit } = await import("firebase/firestore");
+    const q = query(
+      collection(db, "stories"),
+      where("status", "==", "published"),
+      limit(10000)
+    );
+    const snapshot = await getDocs(q);
+    storyPages = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      const coverUrl = toAbsoluteImageUrl(base, data.coverImageUrl);
       const entry: MetadataRoute.Sitemap[number] = {
-        url: `${base}/stories/${s.id}/`,
-        lastModified: s.updatedAt,
+        url: `${base}/stories/${doc.id}/`,
+        lastModified: data.updatedAt?.toDate() || new Date(),
         changeFrequency: "weekly" as const,
         priority: 0.7,
       };
@@ -69,8 +79,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }
       return entry;
     });
-  } catch {
-    // Firebase may not be configured during build
+  } catch (error) {
+    console.error("Failed to generate sitemap for stories:", error);
   }
 
   return [...staticPages, ...categoryPages, ...blogPages, ...archivePages, ...storyPages];

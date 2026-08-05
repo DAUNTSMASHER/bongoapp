@@ -39,11 +39,20 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  let stories: Awaited<ReturnType<typeof getPublishedStories>> = [];
+  let stories: any[] = [];
   try {
-    stories = await getPublishedStories({ limit: 50 });
-  } catch {
-    // Firebase may not be configured (e.g. build without env)
+    const { db } = await import("@/lib/firebase");
+    const { collection, getDocs, query, where, limit, orderBy } = await import("firebase/firestore");
+    const q = query(
+      collection(db, "stories"),
+      where("status", "==", "published"),
+      orderBy("publishedAt", "desc"),
+      limit(50)
+    );
+    const snapshot = await getDocs(q);
+    stories = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (e) {
+    console.error("Failed to fetch stories for HomePage:", e);
   }
   return (
     <>

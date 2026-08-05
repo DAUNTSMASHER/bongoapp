@@ -3,11 +3,31 @@ import StoryPageClient from "@/components/StoryPageClient";
 import { getPublishedStoryById } from "@/lib/storyData";
 import { SEO_KEYWORDS } from "@/lib/seoKeywords";
 import { cleanDescription } from "@/lib/seo";
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, where, limit } from "firebase/firestore";
 
 const siteUrl = process.env.NEXT_PUBLIC_APP_URL || "https://bongochoti.com";
 
 function stripHtml(text: string): string {
   return text.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+}
+
+export async function generateStaticParams() {
+  try {
+    const q = query(
+      collection(db, "stories"),
+      where("status", "==", "published"),
+      limit(5000)
+    );
+    const snapshot = await getDocs(q);
+    const ids = snapshot.docs.map((doc) => ({ id: doc.id }));
+    // If no stories found, return at least one placeholder so Next.js doesn't crash on empty export
+    if (ids.length === 0) return [{ id: "placeholder" }];
+    return ids;
+  } catch (error) {
+    console.error("Failed to generate static params for stories:", error);
+    return [{ id: "placeholder" }];
+  }
 }
 
 export async function generateMetadata({
