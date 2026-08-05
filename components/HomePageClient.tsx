@@ -113,10 +113,10 @@ export default function HomePageClient({ initialStories }: HomePageClientProps) 
 
   return (
     <div className="min-h-screen">
-      <div className="flex justify-center">
+      {heroStory && <HeroBanner story={heroStory} />}
+      <div className="mt-4 flex justify-center">
         <BannerAd placement="home-top" variant="leaderboard" />
       </div>
-      {heroStory && <HeroBanner story={heroStory} />}
       <PopAdPlacement placement="home-hero" />
       <ContentWrapper className="pt-2 md:pt-4 lg:pt-6">
         {/* SEO: keyword-rich intro — H1 with bangla choti for search visibility */}
