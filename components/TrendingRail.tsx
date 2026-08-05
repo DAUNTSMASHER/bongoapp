@@ -20,10 +20,10 @@ export default function TrendingRail({ stories }: TrendingRailProps) {
           Trending Bangla Choti
         </h2>
       </div>
-      {/* Mobile: horizontal scroll | Desktop: grid, no scroll */}
-      <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide md:gap-4 md:pb-0 lg:grid lg:grid-cols-3 lg:gap-5 lg:overflow-visible">
+      {/* 2 cols on mobile, 4 on desktop, no scroll */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 lg:gap-5">
         {stories.map((story, i) => (
-          <div key={story.id} className="shrink-0">
+          <div key={story.id} className="min-h-0">
             <StoryCard story={story} index={i} variant="poster" matchHotChobi />
           </div>
         ))}

@@ -52,8 +52,8 @@ function splitStoriesForHome(stories: Story[]): {
 } {
   if (stories.length === 0) return { hero: null, trending: [], latest: [] };
   const hero = stories[0] ?? null;
-  const trending = stories.slice(1, 4);
-  const latest = stories.slice(4);
+  const trending = stories.slice(1, 5);
+  const latest = stories.slice(5);
   return { hero, trending, latest };
 }
 
@@ -113,7 +113,7 @@ export default function HomePageClient({ initialStories }: HomePageClientProps) 
 
   return (
     <div className="min-h-screen">
-      <div className="mb-2 flex justify-center py-2">
+      <div className="flex justify-center">
         <BannerAd placement="home-top" variant="leaderboard" />
       </div>
       {heroStory && <HeroBanner story={heroStory} />}
